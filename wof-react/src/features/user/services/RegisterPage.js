@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Snackbar } from '@mui/material';
+import {Box, TextField, Button, Typography, Snackbar, Link} from '@mui/material';
 import AuthService from '../../../services/AuthService';
 import { useNavigate } from 'react-router-dom';
 
@@ -154,6 +154,9 @@ const RegisterPage = () => {
                 >
                     Register
                 </Button>
+                <Link href="/user-login" variant="body2" sx={{ mt: 2, color: 'black' }}>
+                    {"Already have an account? Login here"}
+                </Link>
             </Box>
             <Snackbar
                 open={open}

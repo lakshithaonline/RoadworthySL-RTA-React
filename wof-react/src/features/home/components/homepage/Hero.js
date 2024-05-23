@@ -11,6 +11,10 @@ const Hero = ({ isLoggedIn }) => {
     navigate('/user-login');
   };
 
+    const handleDashboardClick = () => {
+        navigate('/dashboard');
+    };
+
   return (
       <div className='text-white' >
           <video
@@ -45,10 +49,13 @@ const Hero = ({ isLoggedIn }) => {
               <p className='md:text-2xl text-xl font-bold text-gray-500'>Stay compliant and safe with our certified
                   Warrant
                   of Fitness inspections.</p>
-              {!isLoggedIn && (
-                  <button className='bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black'
-                          onClick={handleGetStartedClick}>
+              {!isLoggedIn ? (
+                  <button className='bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black' onClick={handleGetStartedClick}>
                       Get Certified
+                  </button>
+              ) : (
+                  <button className='bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black' onClick={handleDashboardClick}>
+                      Check WOF
                   </button>
               )}
           </div>

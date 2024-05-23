@@ -10,6 +10,9 @@ import LoginPage from "../features/user/services/LoginPage";
 import ExaminerLogin from "../features/examiner/services/ExaminerLogin";
 import ExaminerRegisterPage from "../features/admin/components/ExaminerRegisterPage";
 import PrivacyPolicy from "../features/home/components/privacyPolicy/PrivacyPolicy";
+import Dashboard from "../features/user/components/userConsole/dashboard";
+
+
 
 function App() {
     return (
@@ -20,9 +23,12 @@ function App() {
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
                             <>
                             <Route path="/user-reg" element={<RegisterPage />} />
                             <Route path="/user-login" element={<LoginPage />} />
+                                <Route path="/dashboard/*" element={<Dashboard />}>
+                                </Route>
                             </>
                             <>
                                 <Route path="/examiner-reg" element={<ExaminerRegisterPage />} />
