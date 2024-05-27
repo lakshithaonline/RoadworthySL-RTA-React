@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login } from '../../../services/ApiService';
+import { adminLogin } from '../../../services/ApiService';
 import { Box, Button, TextField, Typography, CircularProgress, Snackbar  } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 
@@ -28,7 +28,7 @@ function AdminLoginPage() {
         }
 
         try {
-            await login(username, password);
+            await adminLogin(username, password);
             setTimeout(() => {
                 setLoading(false);
                 navigate('/admin-dashboard');

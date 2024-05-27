@@ -31,7 +31,7 @@ function ExaminerLogin() {
             await examinerLogin(username, password);
             setTimeout(() => {
                 setLoading(false);
-                navigate('/admin-dashboard');
+                navigate('/dashboard/examiner');
             }, 2000);
         } catch (error) {
             setLoading(false);

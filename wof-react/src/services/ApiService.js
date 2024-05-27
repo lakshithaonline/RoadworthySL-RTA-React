@@ -1,5 +1,5 @@
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
-export const login = async (username, password) => {
+export const adminLogin = async (username, password) => {
     try {
         const response = await fetch(`${BASE_URL}/auth/admin/login`, {
             method: 'POST',

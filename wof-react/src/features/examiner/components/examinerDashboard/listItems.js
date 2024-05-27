@@ -14,37 +14,37 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export const mainListItems = (
     <React.Fragment>
-        <ListItemButton component={Link} to="/dashboard">
+        <ListItemButton component={Link} to="/dashboard/examiner">
             <ListItemIcon>
                 <DashboardIcon/>
             </ListItemIcon>
-            <ListItemText primary="User Dashboard"/>
+            <ListItemText primary="Examiner Dashboard"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/vehicle-test">
+        <ListItemButton component={Link} to="/dashboard/examiner/vehicle-test">
             <ListItemIcon>
                 <DirectionsCarIcon/>
             </ListItemIcon>
             <ListItemText primary="Vehicle Tests"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/vehicle-management">
+        <ListItemButton component={Link} to="/dashboard/examiner/vehicle-management">
             <ListItemIcon>
                 <BuildIcon/>
             </ListItemIcon>
             <ListItemText primary="Vehicle Management"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/appointments">
+        <ListItemButton component={Link} to="/dashboard/examiner/appointments">
             <ListItemIcon>
                 <EventIcon/>
             </ListItemIcon>
             <ListItemText primary="Appointments"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/customers">
+        <ListItemButton component={Link} to="/dashboard/examiner/customers">
             <ListItemIcon>
                 <PeopleIcon/>
             </ListItemIcon>
             <ListItemText primary="Customers"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/reports">
+        <ListItemButton component={Link} to="/dashboard/examiner/reports">
             <ListItemIcon>
                 <ReportIcon/>
             </ListItemIcon>
@@ -59,19 +59,19 @@ export const secondaryListItems = (
         <ListSubheader component="div" inset>
             Saved reports
         </ListSubheader>
-        <ListItemButton component={Link} to="/dashboard/report/current-month">
+        <ListItemButton component={Link} to="/dashboard/examiner/report/current-month">
             <ListItemIcon>
                 <AssignmentIcon/>
             </ListItemIcon>
             <ListItemText primary="Current month"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/report/last-quarter">
+        <ListItemButton component={Link} to="/dashboard/examiner/report/last-quarter">
             <ListItemIcon>
                 <AssignmentIcon/>
             </ListItemIcon>
             <ListItemText primary="Last quarter"/>
         </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/report/year-end-summary">
+        <ListItemButton component={Link} to="/dashboard/examiner/report/year-end-summary">
             <ListItemIcon>
                 <AssignmentIcon/>
             </ListItemIcon>

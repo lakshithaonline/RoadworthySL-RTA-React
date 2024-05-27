@@ -21,7 +21,7 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const newUser = await AuthService.register(formData);
+            const newUser = await AuthService.userRegister(formData);
             setTimeout(() => {
                 navigate('/user-login');
             }, 2000);

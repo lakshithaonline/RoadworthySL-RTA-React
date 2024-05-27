@@ -10,7 +10,11 @@ import LoginPage from "../features/user/services/LoginPage";
 import ExaminerLogin from "../features/examiner/services/ExaminerLogin";
 import ExaminerRegisterPage from "../features/admin/components/ExaminerRegisterPage";
 import PrivacyPolicy from "../features/home/components/privacyPolicy/PrivacyPolicy";
-import Dashboard from "../features/user/components/userConsole/dashboard";
+import UserDashboard from "../features/user/components/userConsole/userDashboard";
+import ExaminerDashboard from "../features/examiner/components/examinerDashboard/examinerDashboard";
+import PrivateExaminerRoute from "../routes/private/PrivateExaminerRoute";
+import PrivateUserRoute from "../routes/private/PrivateUserRoute";
+import PrivateAdminRoute from "../routes/private/PrivateAdminRoute";
 
 
 
@@ -27,15 +31,27 @@ function App() {
                             <>
                             <Route path="/user-reg" element={<RegisterPage />} />
                             <Route path="/user-login" element={<LoginPage />} />
-                                <Route path="/dashboard/*" element={<Dashboard />}>
-                                </Route>
+                                <Route path="/dashboard/*" element={
+                                    <PrivateUserRoute>
+                                        <UserDashboard />
+                                    </PrivateUserRoute>
+                                }/>
                             </>
                             <>
                                 <Route path="/examiner-reg" element={<ExaminerRegisterPage />} />
                                 <Route path="/examiner-login" element={<ExaminerLogin />} />
+                                <Route path="/dashboard/examiner/*" element={
+                                    <PrivateExaminerRoute>
+                                        <ExaminerDashboard />
+                                    </PrivateExaminerRoute>
+                                }/>
                             </>
                             <Route path="/admin" element={<AdminLoginPage />} />
-                            <Route path="/admin-dashboard" element={<AdminPage />} />
+                            <Route path="/admin-dashboard" element={
+                                <PrivateAdminRoute>
+                                    <AdminPage />
+                                </PrivateAdminRoute>
+                            }/>
                         </Routes>
                     </header>
                 </div>

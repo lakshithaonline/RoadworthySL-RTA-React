@@ -16,7 +16,7 @@ import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import { mainListItems, secondaryListItems } from './listItems';
 import Chart from './pages/dashboardParts/Chart';
 import Deposits from './pages/dashboardParts/Deposits';
@@ -28,6 +28,9 @@ import Customers from "./pages/Customers";
 import Appointments from "./pages/Appointments";
 import DashboardContent from "./pages/DashboardContent";
 import UpdatedTheme from "../userConsole/updatedTheme";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import {ListItemIcon, ListItemText} from "@mui/material";
+import ListItemButton from "@mui/material/ListItemButton";
 
 function Copyright(props) {
     return (
@@ -41,6 +44,11 @@ function Copyright(props) {
         </Typography>
     );
 }
+
+const handleLogout = (navigate) => {
+    localStorage.removeItem('user');
+    navigate('/');
+};
 
 const drawerWidth = 240;
 
@@ -88,9 +96,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-export default function Dashboard() {
-    const [open, setOpen] = React.useState(true);
+export default function UserDashboard() {
+    const [open, setOpen] = React.useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const toggleDrawer = () => {
         setOpen(!open);
@@ -117,7 +126,7 @@ export default function Dashboard() {
             case '/dashboard/vehicle-test':
                 return 'Vehicle Test';
             default:
-                return 'Dashboard';
+                return 'User Dashboard';
         }
     };
 
@@ -178,6 +187,14 @@ export default function Dashboard() {
                         <Divider sx={{ my: 1 }} />
                         {secondaryListItems}
                     </List>
+                    <Box sx={{ mt: 'auto', mb: 2 }}>
+                        <ListItemButton onClick={() => handleLogout(navigate)}>
+                            <ListItemIcon>
+                                <ExitToAppIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Logout" />
+                        </ListItemButton>
+                    </Box>
                 </Drawer>
                 <Box
                     component="main"

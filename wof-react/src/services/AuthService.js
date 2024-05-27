@@ -1,12 +1,12 @@
 import axios from 'axios';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-const register = async (userData) => {
+const userRegister = async (userData) => {
     const response = await axios.post(`${API_URL}/auth/user/create`, userData);
     return response.data;
 };
 
-const login = async (userData) => {
+const userLogin = async (userData) => {
     const response = await axios.post(`${API_URL}/auth/user/login`, userData);
     if (response.data.token) {
         localStorage.setItem('user', JSON.stringify(response.data));
@@ -22,11 +22,15 @@ export const examinerLogin = async (username, password) => {
             body: JSON.stringify({ username, password }),
             credentials: 'include' // Ensure cookies are included with requests if needed for session management
         });
-
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return await response.json();
+        const data = await response.json();
+        if (data.token) {
+            console.log('examinerToken:', data.token); // Log the token to the console
+            localStorage.setItem('examinerToken', JSON.stringify(data));
+        }
+        return data;
     } catch (error) {
         console.error('Login failed:', error);
         throw error;
@@ -45,8 +49,8 @@ const examinerRegister = async (userData) => {
 };
 
 const AuthService = {
-    register,
-    login,
+    userRegister,
+    userLogin,
     examinerLogin,
     examinerRegister
 };

@@ -8,13 +8,16 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import {useNavigate} from "react-router-dom";
 
 function AdminNavigation({ onChange, onLogout }) {
-    const navigate = useNavigate();  // Hook from React Router for navigation
+    const navigate = useNavigate();
+
     const handleLogout = () => {
-        // Perform any logout operations here, e.g., clearing user data
-        // Navigate to the login page or home page after logout
-        navigate('/');
+        localStorage.removeItem('adminToken');
+        console.log('Token after removal:', localStorage.getItem('adminToken')); // Check if the token is removed
+        navigate('/admin');
     };
-    const drawerWidth = 240; // Set the width of the drawer
+
+
+    const drawerWidth = 240;
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -32,7 +35,7 @@ function AdminNavigation({ onChange, onLogout }) {
                         <ListItemIcon>
                             <DashboardIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Dashboard" />
+                        <ListItemText primary="ExaminerDashboard" />
                     </ListItem>
                     <ListItem button onClick={() => onChange(1)}>
                         <ListItemIcon>

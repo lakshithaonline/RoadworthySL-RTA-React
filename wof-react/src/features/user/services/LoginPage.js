@@ -21,7 +21,7 @@ const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const user = await AuthService.login(formData);
+            const user = await AuthService.userLogin(formData);
             setTimeout(() => {
                 setLoading(false);
                 navigate('/');
