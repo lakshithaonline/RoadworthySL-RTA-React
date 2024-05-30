@@ -24,7 +24,9 @@ const Hero = ({ isLoggedIn }) => {
               muted
               playsInline
               style={{opacity: 0.05, zIndex: -1, position: 'fixed', top: 0, left: 0, width: '100vw', height: '56.25vw',}}
-              playbackRate={0.01}>
+              playbackRate={0.01}
+              controlsList="nodownload"
+          >
               <source src={wavingFlagVideo} type="video/mp4"/>
           </video>
           <div className='max-w-[800px] mt-[-96px] w-full h-screen mx-auto text-center flex flex-col justify-center'>

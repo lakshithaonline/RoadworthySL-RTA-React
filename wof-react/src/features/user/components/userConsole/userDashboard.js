@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, ThemeProvider } from '@mui/material/styles';
+import {styled, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
@@ -9,15 +9,13 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
-import { mainListItems, secondaryListItems } from './listItems';
+import {mainListItems, secondaryListItems} from './listItems';
 import Chart from './pages/dashboardParts/Chart';
 import Deposits from './pages/dashboardParts/Deposits';
 import Orders from './pages/dashboardParts/Orders';
@@ -31,6 +29,7 @@ import UpdatedTheme from "../userConsole/updatedTheme";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import {ListItemIcon, ListItemText} from "@mui/material";
 import ListItemButton from "@mui/material/ListItemButton";
+import Notification from "./pages/Notification";
 
 function Copyright(props) {
     return (
@@ -54,7 +53,7 @@ const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({theme, open}) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
@@ -70,8 +69,8 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
+const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})(
+    ({theme, open}) => ({
         '& .MuiDrawer-paper': {
             position: 'relative',
             whiteSpace: 'nowrap',
@@ -98,12 +97,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function UserDashboard() {
     const [open, setOpen] = React.useState(false);
+    // const [anchorEl, setAnchorEl] = React.useState(null);
     const location = useLocation();
     const navigate = useNavigate();
 
     const toggleDrawer = () => {
         setOpen(!open);
     };
+
 
     const getTitle = () => {
         switch (location.pathname) {
@@ -132,8 +133,8 @@ export default function UserDashboard() {
 
     return (
         <ThemeProvider theme={UpdatedTheme}>
-            <Box sx={{ display: 'flex' }}>
-                <CssBaseline />
+            <Box sx={{display: 'flex'}}>
+                <CssBaseline/>
                 <AppBar position="absolute" open={open}>
                     <Toolbar
                         sx={{
@@ -147,25 +148,37 @@ export default function UserDashboard() {
                             onClick={toggleDrawer}
                             sx={{
                                 marginRight: '36px',
-                                ...(open && { display: 'none' }),
+                                ...(open && {display: 'none'}),
                             }}
                         >
-                            <MenuIcon />
+                            <MenuIcon/>
                         </IconButton>
                         <Typography
                             component="h1"
                             variant="h6"
                             color="inherit"
                             noWrap
-                            sx={{ flexGrow: 1 }}
+                            sx={{flexGrow: 1}}
                         >
                             {getTitle()}
                         </Typography>
-                        <IconButton color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
+
+                        {/*<IconButton color="inherit" onClick={handleNotificationClick}>*/}
+                        {/*    <Badge badgeContent={4} color="secondary">*/}
+                        {/*        <NotificationsIcon />*/}
+                        {/*    </Badge>*/}
+                        {/*</IconButton>*/}
+                        {/*<Menu*/}
+                        {/*    anchorEl={anchorEl}*/}
+                        {/*    open={Boolean(anchorEl)}*/}
+                        {/*    onClose={handleNotificationClose}*/}
+                        {/*>*/}
+                        {/*    <MenuItem onClick={handleNotificationClose}>Notification 1</MenuItem>*/}
+                        {/*    <MenuItem onClick={handleNotificationClose}>Notification 2</MenuItem>*/}
+                        {/*    <MenuItem onClick={handleNotificationClose}>Notification 3</MenuItem>*/}
+                        {/*    <MenuItem onClick={handleNotificationClose}>Notification 4</MenuItem>*/}
+                        {/*</Menu>*/}
+                        <Notification/>
                     </Toolbar>
                 </AppBar>
                 <Drawer variant="permanent" open={open}>
@@ -178,21 +191,21 @@ export default function UserDashboard() {
                         }}
                     >
                         <IconButton onClick={toggleDrawer}>
-                            <ChevronLeftIcon />
+                            <ChevronLeftIcon/>
                         </IconButton>
                     </Toolbar>
-                    <Divider />
+                    <Divider/>
                     <List component="nav">
                         {mainListItems}
-                        <Divider sx={{ my: 1 }} />
+                        <Divider sx={{my: 1}}/>
                         {secondaryListItems}
                     </List>
-                    <Box sx={{ mt: 'auto', mb: 2 }}>
+                    <Box sx={{mt: 'auto', mb: 2}}>
                         <ListItemButton onClick={() => handleLogout(navigate)}>
                             <ListItemIcon>
-                                <ExitToAppIcon />
+                                <ExitToAppIcon/>
                             </ListItemIcon>
-                            <ListItemText primary="Logout" />
+                            <ListItemText primary="Logout"/>
                         </ListItemButton>
                     </Box>
                 </Drawer>
@@ -208,22 +221,22 @@ export default function UserDashboard() {
                         overflow: 'auto',
                     }}
                 >
-                    <Toolbar />
-                    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                    <Toolbar/>
+                    <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
                         <Grid container spacing={3}>
                             <Routes>
-                                <Route path="/" element={<DashboardContent />} />
-                                <Route path="charts" element={<Chart />} />
-                                <Route path="deposits" element={<Deposits />} />
-                                <Route path="orders" element={<Orders />} />
-                                <Route path="appointments" element={<Appointments />} />
-                                <Route path="customers" element={<Customers />} />
-                                <Route path="reports" element={<Reports />} />
-                                <Route path="vehicle-management" element={<VehicleManagement />} />
-                                <Route path="vehicle-test" element={<VehicleTests />} />
+                                <Route path="/" element={<DashboardContent/>}/>
+                                <Route path="charts" element={<Chart/>}/>
+                                <Route path="deposits" element={<Deposits/>}/>
+                                <Route path="orders" element={<Orders/>}/>
+                                <Route path="appointments" element={<Appointments/>}/>
+                                <Route path="customers" element={<Customers/>}/>
+                                <Route path="reports" element={<Reports/>}/>
+                                <Route path="vehicle-management" element={<VehicleManagement/>}/>
+                                <Route path="vehicle-test" element={<VehicleTests/>}/>
                             </Routes>
                         </Grid>
-                        <Copyright sx={{ pt: 4 }} />
+                        <Copyright sx={{pt: 4}}/>
                     </Container>
                 </Box>
             </Box>

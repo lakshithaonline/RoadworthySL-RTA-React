@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, ThemeProvider } from '@mui/material/styles';
+import {styled, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
-import { mainListItems, secondaryListItems } from './listItems';
+import {mainListItems, secondaryListItems} from './listItems';
 import Chart from './pages/dashboardParts/Chart';
 import Deposits from './pages/dashboardParts/Deposits';
 import Orders from './pages/dashboardParts/Orders';
@@ -56,7 +56,7 @@ const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({theme, open}) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
@@ -72,8 +72,8 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
+const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})(
+    ({theme, open}) => ({
         '& .MuiDrawer-paper': {
             position: 'relative',
             whiteSpace: 'nowrap',
@@ -134,8 +134,8 @@ export default function ExaminerDashboard() {
 
     return (
         <ThemeProvider theme={UpdatedTheme}>
-            <Box sx={{ display: 'flex' }}>
-                <CssBaseline />
+            <Box sx={{display: 'flex'}}>
+                <CssBaseline/>
                 <AppBar position="absolute" open={open}>
                     <Toolbar
                         sx={{
@@ -149,23 +149,23 @@ export default function ExaminerDashboard() {
                             onClick={toggleDrawer}
                             sx={{
                                 marginRight: '36px',
-                                ...(open && { display: 'none' }),
+                                ...(open && {display: 'none'}),
                             }}
                         >
-                            <MenuIcon />
+                            <MenuIcon/>
                         </IconButton>
                         <Typography
                             component="h1"
                             variant="h6"
                             color="inherit"
                             noWrap
-                            sx={{ flexGrow: 1 }}
+                            sx={{flexGrow: 1}}
                         >
                             {getTitle()}
                         </Typography>
                         <IconButton color="inherit">
                             <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
+                                <NotificationsIcon/>
                             </Badge>
                         </IconButton>
                     </Toolbar>
@@ -180,21 +180,21 @@ export default function ExaminerDashboard() {
                         }}
                     >
                         <IconButton onClick={toggleDrawer}>
-                            <ChevronLeftIcon />
+                            <ChevronLeftIcon/>
                         </IconButton>
                     </Toolbar>
-                    <Divider />
+                    <Divider/>
                     <List component="nav">
                         {mainListItems}
-                        <Divider sx={{ my: 1 }} />
+                        <Divider sx={{my: 1}}/>
                         {secondaryListItems}
                     </List>
-                    <Box sx={{ mt: 'auto', mb: 2 }}>
+                    <Box sx={{mt: 'auto', mb: 2}}>
                         <ListItemButton onClick={() => handleLogout(navigate)}>
                             <ListItemIcon>
-                                <ExitToAppIcon />
+                                <ExitToAppIcon/>
                             </ListItemIcon>
-                            <ListItemText primary="Logout" />
+                            <ListItemText primary="Logout"/>
                         </ListItemButton>
                     </Box>
                 </Drawer>
@@ -210,22 +210,22 @@ export default function ExaminerDashboard() {
                         overflow: 'auto',
                     }}
                 >
-                    <Toolbar />
-                    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                    <Toolbar/>
+                    <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
                         <Grid container spacing={3}>
                             <Routes>
-                                <Route path="/" element={<DashboardContent />} />
-                                <Route path="charts" element={<Chart />} />
-                                <Route path="deposits" element={<Deposits />} />
-                                <Route path="orders" element={<Orders />} />
-                                <Route path="appointments" element={<Appointments />} />
-                                <Route path="customers" element={<Customers />} />
-                                <Route path="reports" element={<Reports />} />
-                                <Route path="vehicle-management" element={<VehicleManagement />} />
-                                <Route path="vehicle-test" element={<VehicleTests />} />
+                                <Route path="/" element={<DashboardContent/>}/>
+                                <Route path="charts" element={<Chart/>}/>
+                                <Route path="deposits" element={<Deposits/>}/>
+                                <Route path="orders" element={<Orders/>}/>
+                                <Route path="appointments" element={<Appointments/>}/>
+                                <Route path="customers" element={<Customers/>}/>
+                                <Route path="reports" element={<Reports/>}/>
+                                <Route path="vehicle-management" element={<VehicleManagement/>}/>
+                                <Route path="vehicle-test" element={<VehicleTests/>}/>
                             </Routes>
                         </Grid>
-                        <Copyright sx={{ pt: 4 }} />
+                        <Copyright sx={{pt: 4}}/>
                     </Container>
                 </Box>
             </Box>

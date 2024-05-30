@@ -8,7 +8,7 @@ const RegisterPage = () => {
         username: '',
         email: '',
         password: '',
-        role: 'User',
+        role: 'user',
     });
     const [open, setOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');

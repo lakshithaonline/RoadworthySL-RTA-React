@@ -11,10 +11,9 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
     };
 
     const handleLogout = () => {
-        // Clear user from local storage or any other cleanup
         localStorage.removeItem('user');
-        onLogout(); // Call the logout handler passed from the parent
-        navigate('/'); // Navigate home
+        onLogout();
+        navigate('/');
     };
 
     return (
