@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Button,
@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {getAllBookedSlots, getAllUsers} from "../../../../../services/examiner.appointment.api";
+import { getAllBookedSlots, getAllUsers } from "../../../../../services/examiner.appointment.api";
 
 export default function Appointments() {
     const [bookedSlots, setBookedSlots] = useState([]);
@@ -29,6 +29,10 @@ export default function Appointments() {
     const [anchorElUA, setAnchorElUA] = useState(null);
     const [selectedSlotId, setSelectedSlotId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const slotsPerPage = 5;
 
     useEffect(() => {
         const fetchBookedSlotsAndUsers = async () => {
@@ -70,12 +74,31 @@ export default function Appointments() {
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
+        setCurrentPage(1); // Reset to the first page on search
     };
 
     const filteredSlots = bookedSlots.filter(slot =>
         slot.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         slot.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Pagination calculations
+    const indexOfLastSlot = currentPage * slotsPerPage;
+    const indexOfFirstSlot = indexOfLastSlot - slotsPerPage;
+    const currentSlots = filteredSlots.slice(indexOfFirstSlot, indexOfLastSlot);
+    const totalPages = Math.ceil(filteredSlots.length / slotsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
     const now = new Date();
     const nowDateString = now.toDateString();
@@ -91,19 +114,17 @@ export default function Appointments() {
         return slotDateString === nowDateString || isWithin24Hours;
     });
 
-
     const handleAction = (action, slotId) => {
         // Implement action handlers (e.g., start inspection, reschedule, cancel)
         console.log(`Action ${action} for slot ${slotId}`);
     };
-
 
     const handleMenuClick = (event, id) => {
         setAnchorElUA(event.currentTarget); // Set the anchor element for the menu
     };
 
     return (
-        <Box sx={{flexGrow: 1, display: 'flex'}}>
+        <Box sx={{ flexGrow: 1, display: 'flex' }}>
             <Grid container spacing={2}>
 
                 {/* Main Table for All Records */}
@@ -113,8 +134,7 @@ export default function Appointments() {
                             Appointments Overview
                         </Typography>
                         <Typography variant="body1" paragraph>
-                            Here you can view and manage all booked slots. Use the search bar below to filter the
-                            appointments.
+                            Here you can view and manage all booked slots. Use the search bar below to filter the appointments.
                         </Typography>
                         <TextField
                             label="Search by Registration Number or Username"
@@ -122,22 +142,22 @@ export default function Appointments() {
                             fullWidth
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            style={{marginBottom: '20px'}}
+                            style={{ marginBottom: '20px' }}
                         />
 
-                        <TableContainer component={Paper} style={{padding: '20px'}}>
+                        <TableContainer component={Paper} style={{ padding: '20px' }}>
                             <Table>
                                 <TableHead>
-                                    <TableRow style={{backgroundColor: 'black'}}>
-                                        <TableCell style={{color: 'white'}}>Registration Number</TableCell>
-                                        <TableCell style={{color: 'white'}}>Username</TableCell>
-                                        <TableCell style={{color: 'white'}}>Date</TableCell>
-                                        <TableCell style={{color: 'white'}}>Time</TableCell>
-                                        <TableCell style={{color: 'white'}}>Action</TableCell>
+                                    <TableRow style={{ backgroundColor: 'black' }}>
+                                        <TableCell style={{ color: 'white' }}>Registration Number</TableCell>
+                                        <TableCell style={{ color: 'white' }}>Username</TableCell>
+                                        <TableCell style={{ color: 'white' }}>Date</TableCell>
+                                        <TableCell style={{ color: 'white' }}>Time</TableCell>
+                                        <TableCell style={{ color: 'white' }}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filteredSlots.map((slot) => (
+                                    {currentSlots.map((slot) => (
                                         <TableRow key={slot._id}>
                                             <TableCell>{slot.registrationNumber}</TableCell>
                                             <TableCell>{slot.username}</TableCell>
@@ -145,7 +165,7 @@ export default function Appointments() {
                                             <TableCell>{slot.time}</TableCell>
                                             <TableCell>
                                                 <IconButton onClick={(event) => handleActionClick(event, slot._id)}>
-                                                    <MoreVertIcon/>
+                                                    <MoreVertIcon />
                                                 </IconButton>
                                                 <Menu
                                                     anchorEl={anchorEl}
@@ -162,13 +182,36 @@ export default function Appointments() {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+
+                        {/* Pagination Controls */}
+                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <Button
+                                variant="contained"
+                                onClick={handlePreviousPage}
+                                disabled={currentPage === 1}
+                                sx={{ marginRight: '10px' }}
+                            >
+                                Previous
+                            </Button>
+                            <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                                Page {currentPage} of {totalPages}
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                onClick={handleNextPage}
+                                disabled={currentPage === totalPages}
+                                sx={{ marginLeft: '10px' }}
+                            >
+                                Next
+                            </Button>
+                        </Box>
                     </Box>
                 </Grid>
 
                 {/* Card for Upcoming Appointments (Within 24 Hours) */}
                 <Grid item xs={12} md={4}>
                     <Box padding="20px">
-                        <Typography variant="h5" component="h2" gutterBottom style={{marginBottom: '30px'}}>
+                        <Typography variant="h5" component="h2" gutterBottom style={{ marginBottom: '30px' }}>
                             Upcoming Appointments
                         </Typography>
                         {upcomingSlots.map((slot) => (
