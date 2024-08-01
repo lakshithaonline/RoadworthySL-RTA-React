@@ -1,48 +1,71 @@
 import React from 'react';
-import Single from '../../../../assets/home-page/single.png'
-import Double from '../../../../assets/home-page/double.png'
-import Triple from '../../../../assets/home-page/triple.png'
+import Mechanical from '../../../../assets/testingIcons/construction (1).png';
+import Safety from '../../../../assets/testingIcons/insurance.png';
+import Structural from '../../../../assets/testingIcons/chassis.png';
+import Environmental from '../../../../assets/testingIcons/zero-emission.png';
+import Documentation from '../../../../assets/testingIcons/documents.png';
 
 const Cards = () => {
-  return (
-    <div className='w-full py-[10rem] px-4 bg-white'>
-      <div className='max-w-[1240px] mx-auto grid md:grid-cols-3 gap-8'>
-          <div className='w-full shadow-xl flex flex-col p-4 my-4 rounded-lg hover:scale-105 duration-300'>
-              <img className='w-20 mx-auto mt-[-3rem] bg-white' src={Single} alt="/" />
-              <h2 className='text-2xl font-bold text-center py-8'>Single User</h2>
-              <p className='text-center text-4xl font-bold'>$149</p>
-              <div className='text-center font-medium'>
-                  <p className='py-2 border-b mx-8 mt-8'>500 GB Storage</p>
-                  <p className='py-2 border-b mx-8'>1 Granted User</p>
-                  <p className='py-2 border-b mx-8'>Send up to 2 GB</p>
-              </div>
-              <button className='bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto px-6 py-3'>Start Trial</button>
-          </div>
-          <div className='w-full shadow-xl bg-gray-100 flex flex-col p-4 md:my-0 my-8 rounded-lg hover:scale-105 duration-300'>
-              <img className='w-20 mx-auto mt-[-3rem] bg-transparent' src={Double} alt="/" />
-              <h2 className='text-2xl font-bold text-center py-8'>Single User</h2>
-              <p className='text-center text-4xl font-bold'>$149</p>
-              <div className='text-center font-medium'>
-                  <p className='py-2 border-b mx-8 mt-8'>500 GB Storage</p>
-                  <p className='py-2 border-b mx-8'>1 Granted User</p>
-                  <p className='py-2 border-b mx-8'>Send up to 2 GB</p>
-              </div>
-              <button className='bg-black text-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto px-6 py-3'>Start Trial</button>
-          </div>
-          <div className='w-full shadow-xl flex flex-col p-4 my-4 rounded-lg hover:scale-105 duration-300'>
-              <img className='w-20 mx-auto mt-[-3rem] bg-white' src={Triple} alt="/" />
-              <h2 className='text-2xl font-bold text-center py-8'>Single User</h2>
-              <p className='text-center text-4xl font-bold'>$149</p>
-              <div className='text-center font-medium'>
-                  <p className='py-2 border-b mx-8 mt-8'>500 GB Storage</p>
-                  <p className='py-2 border-b mx-8'>1 Granted User</p>
-                  <p className='py-2 border-b mx-8'>Send up to 2 GB</p>
-              </div>
-              <button className='bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto px-6 py-3'>Start Trial</button>
-          </div>
-      </div>
-    </div>
-  );
+    return (
+        <div className='w-full py-10 px-4 bg-white'>
+            <div className='max-w-[1240px] mx-auto flex flex-wrap justify-center gap-4'>
+                {/* Mechanical Systems Card */}
+                <div className='w-[200px] h-[300px] shadow-xl flex flex-col items-center p-4 rounded-lg hover:scale-105 duration-300'>
+                    <img className='w-12 bg-white' src={Mechanical} alt="Mechanical Systems" />
+                    <h2 className='text-xl font-bold text-center py-4'>Mechanical Systems</h2>
+                    <div className='text-center font-medium'>
+                        <p className='py-1 border-b mx-4 mt-4'>Brakes</p>
+                        <p className='py-1 border-b mx-4'>Steering</p>
+                        <p className='py-1 border-b mx-4'>Suspension</p>
+                    </div>
+                </div>
+
+                {/* Safety Features Card */}
+                <div className='w-[200px] h-[300px] shadow-xl flex flex-col items-center p-4 rounded-lg hover:scale-105 duration-300'>
+                    <img className='w-12 bg-white' src={Safety} alt="Safety Features" />
+                    <h2 className='text-xl font-bold text-center py-4'>Safety Features</h2>
+                    <div className='text-center font-medium'>
+                        <p className='py-1 border-b mx-4 mt-4'>Seat Belts</p>
+                        <p className='py-1 border-b mx-4'>Lights</p>
+                        <p className='py-1 border-b mx-4'>Horn and Mirrors</p>
+                    </div>
+                </div>
+
+                {/* Structural Integrity Card */}
+                <div className='w-[200px] h-[300px] shadow-xl flex flex-col items-center p-4 rounded-lg hover:scale-105 duration-300'>
+                    <img className='w-12 bg-white' src={Structural} alt="Structural Integrity" />
+                    <h2 className='text-xl font-bold text-center py-4'>Structural Integrity</h2>
+                    <div className='text-center font-medium'>
+                        <p className='py-1 border-b mx-4 mt-4'>Body and Chassis</p>
+                        <p className='py-1 border-b mx-4'>Windows</p>
+                        <p className='py-1 border-b mx-4'>Wipers</p>
+                    </div>
+                </div>
+
+                {/* Environmental Compliance Card */}
+                <div className='w-[200px] h-[300px] shadow-xl flex flex-col items-center p-4 rounded-lg hover:scale-105 duration-300'>
+                    <img className='w-12 bg-white' src={Environmental} alt="Environmental Compliance" />
+                    <h2 className='text-xl font-bold text-center py-4'>Environmental Compliance</h2>
+                    <div className='text-center font-medium'>
+                        <p className='py-1 border-b mx-4 mt-4'>Exhaust System</p>
+                        <p className='py-1 border-b mx-4'>Emissions</p>
+                        <p className='py-1 border-b mx-4'>Fluid Levels:</p>
+                    </div>
+                </div>
+
+                {/* Documentation and Identification Card */}
+                <div className='w-[200px] h-[300px] shadow-xl flex flex-col items-center p-4 rounded-lg hover:scale-105 duration-300'>
+                    <img className='w-12 bg-white' src={Documentation} alt="Documentation and Identification" />
+                    <h2 className='text-xl font-bold text-center py-4'>Documentation and Identification</h2>
+                    <div className='text-center font-medium'>
+                        <p className='py-1 border-b mx-4 mt-4'>VIN Verification</p>
+                        <p className='py-1 border-b mx-4'>Registration Documents</p>
+                        <p className='py-1 border-b mx-4'>Insurance Papers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default Cards;
