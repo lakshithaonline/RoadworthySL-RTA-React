@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HistoryIcon from '@mui/icons-material/History';
-import {getAllVehiclesWithOwners} from "../../../../../services/examiner.appointment.api";
+import {getAllVehiclesWithOwners} from "../../../../../services/examinerService";
 
 
 export default function VehicleManagement() {

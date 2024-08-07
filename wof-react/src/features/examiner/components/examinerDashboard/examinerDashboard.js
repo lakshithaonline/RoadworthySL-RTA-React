@@ -21,7 +21,7 @@ import {mainListItems, secondaryListItems} from './listItems';
 import Chart from './pages/dashboardParts/Chart';
 import Deposits from './pages/dashboardParts/Deposits';
 import Orders from './pages/dashboardParts/Orders';
-import VehicleTests from "./pages/VehicleTest";
+import VehicleTests from "./pages/VehicleInspection";
 import VehicleManagement from "./pages/VehicleManagement";
 import Reports from "./pages/Reports";
 import Customers from "./pages/Customers";

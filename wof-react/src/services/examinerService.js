@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const getAuthToken = () => {
@@ -45,4 +47,24 @@ export const getAllUsersWithVehicles = async () => {
         throw new Error('Failed to fetch users with vehicles');
     }
     return response.json();
+};
+
+export const submitRatings = async (ratings) => {
+    try {
+        const response = await axios.post(`${API_URL}/examiner/predict`, ratings, {
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to submit ratings');
+        } else if (error.request) {
+            throw new Error('No response received from server');
+        } else {
+            throw new Error('An unexpected error occurred');
+        }
+    }
 };

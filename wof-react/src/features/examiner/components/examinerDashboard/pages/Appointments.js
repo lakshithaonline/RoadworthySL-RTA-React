@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { getAllBookedSlots, getAllUsers } from "../../../../../services/examiner.appointment.api";
+import { getAllBookedSlots, getAllUsers } from "../../../../../services/examinerService";
 
 export default function Appointments() {
     const [bookedSlots, setBookedSlots] = useState([]);

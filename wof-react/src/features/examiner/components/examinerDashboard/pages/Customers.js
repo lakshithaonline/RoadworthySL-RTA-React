@@ -20,7 +20,7 @@ import {
     DialogTitle
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { getAllUsersWithVehicles } from "../../../../../services/examiner.appointment.api";
+import { getAllUsersWithVehicles } from "../../../../../services/examinerService";
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
