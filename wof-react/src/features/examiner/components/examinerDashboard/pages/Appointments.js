@@ -115,7 +115,7 @@ export default function Appointments() {
     });
 
     const handleAction = (action, slotId) => {
-        // Implement action handlers (e.g., start inspection, reschedule, cancel)
+        // Implement action handlers (for example, start inspection, reschedule, cancel)
         console.log(`Action ${action} for slot ${slotId}`);
     };
 

@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Alert,
     Box,
-    Grid,
-    Typography,
-    Paper,
-    Container,
     Button,
     CircularProgress,
-    TextField, Snackbar, Alert
+    Container,
+    Grid,
+    Paper,
+    Snackbar,
+    TextField,
+    Typography
 } from '@mui/material';
 import {getAllVehiclesWithOwners, submitRatings} from "../../../../../services/examinerService";
-import { Autocomplete } from "@mui/lab";
+import {Autocomplete} from "@mui/lab";
+import {createWOF} from "../../../../../services/wofService";
 
 export default function VehicleTests() {
-    const [selectedVehicle, setSelectedVehicle] = useState('');
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [ratings, setRatings] = useState({
         tyres: 5,
         brakes: 5,
@@ -36,15 +39,14 @@ export default function VehicleTests() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
-        // Retrieve stored ratings from localStorage on mount
         const storedRatings = JSON.parse(localStorage.getItem('vehicleRatings'));
         if (storedRatings) {
             setRatings(storedRatings);
         }
 
-        // Fetch vehicles data
         const fetchVehicles = async () => {
             try {
                 const vehiclesData = await getAllVehiclesWithOwners();
@@ -89,6 +91,12 @@ export default function VehicleTests() {
     };
 
     const handleSubmit = async () => {
+        if (!selectedVehicle) {
+            setSnackbarMessage('Please select a vehicle before submitting.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
         setLoading(true);
         try {
             // Pre-processing
@@ -108,11 +116,11 @@ export default function VehicleTests() {
                 "Fuel System": ratings.fuelSystem,
             };
 
-            // API Call
             const data = await submitRatings(formattedRatings);
 
             // Post-processing
             setResults(data);
+            setSubmitted(true);
             setSnackbarMessage('Ratings submitted successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
@@ -137,8 +145,95 @@ export default function VehicleTests() {
         }
     };
 
+    const handleSave = async () => {
+        if (!selectedVehicle) {
+            setSnackbarMessage('Please select a vehicle before saving.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
+
+        if (!submitted) {
+            setSnackbarMessage('Please Complete the WOF test before reporting.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const inspectionDate = new Date().toISOString();
+            const vehicleData = selectedVehicle ? selectedVehicle : {};
+            const ownerId = vehicleData.owner?._id;
+
+            // Prepare data for WOF inspection
+            const wofData = {
+                vehicleId: vehicleData._id,
+                ownerId: ownerId,
+                ratings: {
+                    "Tyres": ratings.tyres,
+                    "Brakes": ratings.brakes,
+                    "Suspension": ratings.suspension,
+                    "Body and Chassis": ratings.bodyAndChassis,
+                    "Lights": ratings.lights,
+                    "Glazing": ratings.glazing,
+                    "Wipers": ratings.wipers,
+                    "Doors": ratings.doors,
+                    "Seat Belts": ratings.seatBelts,
+                    "Airbags": ratings.airbags,
+                    "Speedometer": ratings.speedometer,
+                    "Exhaust System": ratings.exhaustSystem,
+                    "Fuel System": ratings.fuelSystem,
+                },
+                inspectionDate,
+                finalScore: results?.final_score,
+                outcome: results.outcome,
+                highCriticalConcerns: results?.high_critical_concern || []
+            };
+
+
+            const requiredFields = [
+                'fuelSystem', 'exhaustSystem', 'speedometer', 'airbags',
+                'seatBelts', 'doors', 'wipers', 'glazing', 'lights',
+                'bodyAndChassis', 'suspension', 'brakes', 'tyres'
+            ];
+            requiredFields.forEach(field => {
+                if (!wofData.ratings[field]) {
+                    wofData.ratings[field] = 5;
+                }
+            });
+
+            // API Call
+            const data = await createWOF(wofData);
+
+            // Post-processing
+            setResults(data);
+            setSnackbarMessage('WOF inspection saved successfully!');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            // Handle errors
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                setSnackbarMessage(error.response.data.message || 'An error occurred');
+                setSnackbarSeverity('error');
+            } else if (error.request) {
+                console.error('Error request:', error.request);
+                setSnackbarMessage('No response received from server');
+                setSnackbarSeverity('error');
+            } else {
+                console.error('Error message:', error.message);
+                setSnackbarMessage('An unexpected error occurred');
+                setSnackbarSeverity('error');
+            }
+            setSnackbarOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const handleReset = () => {
-        // Reset state and localStorage
         const defaultRatings = {
             tyres: 5,
             brakes: 5,
@@ -158,6 +253,7 @@ export default function VehicleTests() {
         localStorage.removeItem('vehicleRatings');
         setResults(null);
         setErrors({});
+        setSubmitted(false);
     };
 
     const handleSnackbarClose = () => {
@@ -166,15 +262,15 @@ export default function VehicleTests() {
 
 
     return (
-        <Container maxWidth="lg" sx={{ padding: 2 }}>
+        <Container maxWidth="lg" sx={{padding: 2}}>
             <Typography variant="h4" component="h1" gutterBottom>
                 Vehicle Testing
             </Typography>
-            <Grid container spacing={2} sx={{ marginTop: 2 }}>
+            <Grid container spacing={2} sx={{marginTop: 2}}>
                 {/* Left Side: Vehicle Selection */}
                 <Grid item xs={12} md={3}>
-                    <Paper sx={{ padding: 2, display: 'flex', flexDirection: 'column', height: '20%' }}>
-                        <Typography variant="h6" gutterBottom>
+                    <Paper sx={{padding: 2, display: 'flex', flexDirection: 'column'}}>
+                        <Typography variant="h6" gutterBottom  component="h2" sx={{marginBottom: 1, color: '#333', fontWeight: 'bold'}}>
                             Vehicle Selection
                         </Typography>
                         <Autocomplete
@@ -192,32 +288,58 @@ export default function VehicleTests() {
                             fullWidth
                         />
                     </Paper>
-                    {/*<Paper sx={{ padding: 2, marginTop: 2, display: 'flex', flexDirection: 'column', height: '20%' }}>*/}
-                    {/*    <Typography variant="h6" gutterBottom>*/}
-                    {/*        Optional*/}
-                    {/*    </Typography>*/}
-                    {/*    <FormControl fullWidth variant="outlined" margin="normal">*/}
-                    {/*        <InputLabel id="optional-select-label">Optional</InputLabel>*/}
-                    {/*        <Select*/}
-                    {/*            labelId="optional-select-label"*/}
-                    {/*            id="optional-select"*/}
-                    {/*            value={selectedVehicle}*/}
-                    {/*            onChange={handleVehicleChange}*/}
-                    {/*            label="Optional"*/}
-                    {/*        >*/}
-                    {/*            <MenuItem value="vehicle1">Vehicle 1</MenuItem>*/}
-                    {/*            <MenuItem value="vehicle2">Vehicle 2</MenuItem>*/}
-                    {/*            <MenuItem value="vehicle3">Vehicle 3</MenuItem>*/}
-                    {/*            <MenuItem value="vehicle4">Vehicle 4</MenuItem>*/}
-                    {/*            <MenuItem value="vehicle5">Vehicle 5</MenuItem>*/}
-                    {/*        </Select>*/}
-                    {/*    </FormControl>*/}
-                    {/*</Paper>*/}
+                    <Paper sx={{ marginTop: 2, padding: 2, display: 'flex', flexDirection: 'column', borderRadius: 1 }}>
+                        <Typography
+                            variant="h6"
+                            component="h2"
+                            sx={{
+                                marginBottom: 1,
+                                color: '#333',
+                                fontWeight: 'bold',
+                                borderBottom: '2px solid #ddd',
+                                paddingBottom: 1,
+                            }}
+                        >
+                            Vehicle Data
+                        </Typography>
+                        {selectedVehicle ? (
+                            <Box>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Registration Number:</strong> {selectedVehicle.registrationNumber}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Owner:</strong> {selectedVehicle.owner?.username}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Make:</strong> {selectedVehicle.make}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Model:</strong> {selectedVehicle.model}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>VIN Number:</strong> {selectedVehicle.vin}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Manufacturing Date:</strong> {new Date(selectedVehicle.mfd).toLocaleDateString()}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Registration Date:</strong> {new Date(selectedVehicle.reg).toLocaleDateString()}
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                    <strong>Mileage:</strong> {selectedVehicle.mileage} km
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <Typography variant="body1" sx={{ color: '#777' }}>
+                                Please select a vehicle before start the inspection.
+                            </Typography>
+                        )}
+                    </Paper>
                 </Grid>
 
                 {/* Middle Section: Testing Environment */}
                 <Grid item xs={12} md={6}>
-                    <Paper sx={{ padding: 2 }}>
+                    <Paper sx={{padding: 2}}>
                         <Typography variant="h6" gutterBottom>
                             Testing Environment
                         </Typography>
@@ -251,7 +373,7 @@ export default function VehicleTests() {
                                         type="number"
                                         value={ratings[param]}
                                         onChange={(e) => handleRatingChange(param, e.target.value)}
-                                        inputProps={{ min: 1, max: 10, step: 1 }}
+                                        inputProps={{min: 1, max: 10, step: 1}}
                                         error={!!errors[param]}
                                         helperText={errors[param]}
                                         fullWidth
@@ -263,15 +385,21 @@ export default function VehicleTests() {
                 </Grid>
 
                 {/* Right Side: Results */}
-                <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Paper sx={{ padding: 2, flexGrow: 1 }}>
+                <Grid item xs={12} md={3} sx={{display: 'flex', flexDirection: 'column'}}>
+                    <Paper sx={{padding: 2, flexGrow: 1}}>
                         <Typography variant="h6" gutterBottom>
                             Results
                         </Typography>
                         {loading ? (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                <CircularProgress />
-                                <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%'
+                            }}>
+                                <CircularProgress/>
+                                <Typography variant="subtitle1" sx={{marginTop: 2}}>
                                     Calculating Results...
                                 </Typography>
                             </Box>
@@ -296,36 +424,45 @@ export default function VehicleTests() {
                                         <Typography variant="subtitle1" gutterBottom>
                                             High Critical Concerns:
                                         </Typography>
-                                        {results.high_critical_concern.map((concern) => (
-                                            <Box
-                                                key={concern.parameter}
-                                                sx={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    p: 2,
-                                                    border: '1px solid #ddd',
-                                                    borderRadius: '4px',
-                                                    backgroundColor: '#f9f9f9'
-                                                }}
-                                            >
-                                                <Typography variant="body2">
-                                                    Parameter: {concern.parameter}
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Score: {concern.score}
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Severity: {concern.severity}
-                                                </Typography>
-                                            </Box>
-                                        ))}
+                                        {results.high_critical_concern && results.high_critical_concern.length > 0 ? (
+                                            results.high_critical_concern.map((concern) => (
+                                                <Box
+                                                    key={concern.parameter}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        p: 2,
+                                                        border: '1px solid #ddd',
+                                                        borderRadius: '4px',
+                                                        backgroundColor: '#f9f9f9'
+                                                    }}
+                                                >
+                                                    <Typography variant="body2">
+                                                        Parameter: {concern.parameter}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        Score: {concern.score}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        Severity: {concern.severity}
+                                                    </Typography>
+                                                </Box>
+                                            ))
+                                        ) : (
+                                            <Typography variant="body2">
+                                                No critical concerns
+                                            </Typography>
+                                        )}
                                     </>
                                 )}
-                                <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
+                                <Box sx={{display: 'flex', gap: 2, marginTop: 2}}>
                                     <Button variant="outlined" onClick={handleReset}>
                                         Reset
                                     </Button>
                                     <Button variant="contained" color="primary" onClick={handleSubmit}>
+                                        TEST
+                                    </Button>
+                                    <Button variant="contained" color="primary" onClick={handleSave}>
                                         Submit
                                     </Button>
                                 </Box>
@@ -336,7 +473,7 @@ export default function VehicleTests() {
             </Grid>
             {/* Snackbar Component */}
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
