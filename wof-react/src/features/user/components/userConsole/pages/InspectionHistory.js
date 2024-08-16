@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
 import { getWOFSByToken } from '../../../../../services/wofService';
 import { getVehicles } from '../../../../../services/AppointmentService';
+import {downloadInspectionReport} from "../../../../../services/reportService";
 
 export default function WOFInspectionHistory() {
     const [vehicles, setVehicles] = useState([]);
@@ -75,44 +76,9 @@ export default function WOFInspectionHistory() {
         );
     }, [selectedVehicle, allInspections]);
 
-    const userToken = () => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        return user ? user.token : null;
-    };
-
     // Function to handle downloading the report
     const handleDownloadReport = async (inspectionId) => {
-        try {
-            const token = userToken(); // Retrieve the token using the provided function
-
-            if (!token) {
-                console.error('No authentication token found.');
-                return;
-            }
-
-            const response = await fetch(`http://localhost:5000/user/inspection/${inspectionId}/download`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Inspection_Report_${inspectionId}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } else {
-                console.error('Failed to download report:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error downloading report:', error);
-        }
+        await downloadInspectionReport(inspectionId);
     };
 
     return (
