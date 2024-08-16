@@ -117,10 +117,7 @@ export default function WOFInspectionHistory() {
 
     return (
         <Container maxWidth="md" sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-                WOF Inspection History
-            </Typography>
-
+            <Typography variant="h4" gutterBottom>Inspection History</Typography>
             <Card sx={{ marginBottom: 4 }}>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -192,6 +189,14 @@ export default function WOFInspectionHistory() {
                             <AccordionDetails>
                                 <Divider sx={{ marginBottom: 2 }} />
                                 <Grid container spacing={2}>
+                                    <Grid item xs={12} md={6}>
+                                        <Typography variant="body2">
+                                            <strong>Examiner:</strong> {inspection.examiner ? inspection.examiner.firstname : 'N/A'}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            <strong>Email:</strong> {inspection.examiner ? inspection.examiner.email : 'N/A'}
+                                        </Typography>
+                                    </Grid>
                                     <Grid item xs={12} md={6}>
                                         <Typography variant="body2"><strong>Final Score:</strong> {inspection.finalScore}</Typography>
                                         <Typography variant="body2"><strong>Outcome:</strong> {inspection.outcome === 1 ? 'Pass' : 'Fail'}</Typography>

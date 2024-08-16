@@ -11,7 +11,7 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import {getAllVehiclesWithOwners, submitRatings} from "../../../../../services/examinerService";
+import {getAllVehiclesWithOwners, getExaminerDetails, submitRatings} from "../../../../../services/examinerService";
 import {Autocomplete} from "@mui/lab";
 import {createWOF} from "../../../../../services/wofService";
 
@@ -40,6 +40,7 @@ export default function VehicleTests() {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [submitted, setSubmitted] = useState(false);
+    const [examinerDetails, setExaminerDetails] = useState(null);
 
     useEffect(() => {
         const storedRatings = JSON.parse(localStorage.getItem('vehicleRatings'));
@@ -56,7 +57,17 @@ export default function VehicleTests() {
             }
         };
 
+        const fetchExaminerDetails = async () => {
+            try {
+                const details = await getExaminerDetails();
+                setExaminerDetails(details);
+            } catch (error) {
+                console.error('Error fetching examiner details:', error);
+            }
+        };
+
         fetchVehicles();
+        fetchExaminerDetails();
     }, []);
 
     const handleVehicleChange = (event, value) => {
@@ -188,7 +199,8 @@ export default function VehicleTests() {
                 inspectionDate,
                 finalScore: results?.final_score,
                 outcome: results.outcome,
-                highCriticalConcerns: results?.high_critical_concern || []
+                highCriticalConcerns: results?.high_critical_concern || [],
+                examinerId: examinerDetails?._id,
             };
 
 

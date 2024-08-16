@@ -68,3 +68,18 @@ export const submitRatings = async (ratings) => {
         }
     }
 };
+
+export const getExaminerDetails = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/examiner/details`, {
+            headers: {
+                Authorization: `Bearer ${getAuthToken()}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error retrieving examiner details:', error.message);
+        throw error;
+    }
+};

@@ -196,3 +196,18 @@ export const getWOFInspectionsByVehicleId = async (vehicleId) => {
 };
 
 
+export const getExaminerDetails = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/user/details`, {
+            headers: {
+                Authorization: `Bearer ${userToken()}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error retrieving examiner details:', error.message);
+        throw error;
+    }
+};
+
