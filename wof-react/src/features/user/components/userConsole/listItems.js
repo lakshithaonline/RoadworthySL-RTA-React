@@ -5,7 +5,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/SpaceDashboard';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
 import ReportIcon from '@mui/icons-material/Report';
@@ -22,7 +22,7 @@ export const mainListItems = (
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/vehicle-test">
             <ListItemIcon>
-                <DirectionsCarIcon/>
+                <ManageHistoryIcon/>
             </ListItemIcon>
             <ListItemText primary="Vehicle Tests"/>
         </ListItemButton>

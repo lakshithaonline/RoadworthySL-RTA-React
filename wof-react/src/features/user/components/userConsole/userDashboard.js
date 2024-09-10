@@ -22,7 +22,7 @@ import Orders from './pages/dashboardParts/Orders';
 import VehicleTests from "./pages/InspectionHistory";
 import VehicleManagement from "./pages/VehicleManagement";
 import Reports from "./pages/Reports";
-import Customers from "./pages/Customers";
+import Customers from "./pages/CustomerProfile";
 import Appointments from "./pages/Appointments";
 import DashboardContent from "./pages/DashboardContent";
 import UpdatedTheme from "../userConsole/updatedTheme";
