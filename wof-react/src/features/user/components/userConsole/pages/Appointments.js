@@ -229,23 +229,32 @@ const Appointments = () => {
                             Your Appointments
                         </Typography>
                         <Grid container direction="column" spacing={2}>
-                            {userAppointments.map(appointment => (
-                                <Grid item key={appointment._id}>
-                                    <Paper elevation={3} sx={{backgroundColor: '#f5f5f5'}}>
-                                        <CardContent>
-                                            <Typography variant="body1">
-                                                <strong>Date:</strong> {appointment.date}
-                                            </Typography>
-                                            <Typography variant="body1">
-                                                <strong>Time:</strong> {appointment.time}
-                                            </Typography>
-                                            <Typography variant="body1">
-                                                <strong>Vehicle:</strong> {appointment.registrationNumber}
-                                            </Typography>
-                                        </CardContent>
-                                    </Paper>
-                                </Grid>
-                            ))}
+                            {userAppointments.map((appointment) => {
+                                const vehicle = vehicles.find(v => v.registrationNumber === appointment.registrationNumber);
+                                return (
+                                    <Grid item key={appointment._id}>
+                                        <Paper elevation={3} sx={{ backgroundColor: '#f5f5f5' }}>
+                                            <CardContent>
+                                                <Typography variant="body1">
+                                                    <strong>Date:</strong> {appointment.date}
+                                                </Typography>
+                                                <Typography variant="body1">
+                                                    <strong>Time:</strong> {appointment.time}
+                                                </Typography>
+                                                {vehicle ? (
+                                                    <Typography variant="body1">
+                                                        <strong>Vehicle:</strong> {vehicle.registrationNumber} - {vehicle.make} {vehicle.model}
+                                                    </Typography>
+                                                ) : (
+                                                    <Typography variant="body1" color="error">
+                                                        Vehicle details not available
+                                                    </Typography>
+                                                )}
+                                            </CardContent>
+                                        </Paper>
+                                    </Grid>
+                                );
+                            })}
                         </Grid>
                     </Paper>
                 </Grid>

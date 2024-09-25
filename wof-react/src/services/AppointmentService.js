@@ -19,6 +19,19 @@ export const createAppointment = async (date, time, registrationNumber) => {
     return response.data;
 };
 
+export const editAppointment = async (appointmentId, date, time) => {
+    const headers = { Authorization: `Bearer ${getAuthToken()}` };
+    const response = await axios.put(`${API_URL}/user/edit-appointment/${appointmentId}`, { date, time }, { headers });
+    return response.data;
+};
+
+export const deleteAppointment = async (appointmentId) => {
+    const headers = { Authorization: `Bearer ${getAuthToken()}` };
+    const response = await axios.delete(`${API_URL}/user/delete-appointment/${appointmentId}`, { headers });
+    return response.data;
+};
+
+
 export const getAllBookedSlots = async () => {
     const response = await fetch(`${API_URL}/user/bookedSlots`, {
         headers: {
