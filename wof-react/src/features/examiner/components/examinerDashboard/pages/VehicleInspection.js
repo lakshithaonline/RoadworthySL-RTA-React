@@ -41,7 +41,7 @@ export default function VehicleTests() {
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [submitted, setSubmitted] = useState(false);
     const [examinerDetails, setExaminerDetails] = useState(null);
-
+//TODO: add select inspection period: for 3month, 6 month 12 months: this will decide the inspection report validation and cost for WOF
     useEffect(() => {
         const storedRatings = JSON.parse(localStorage.getItem('vehicleRatings'));
         if (storedRatings) {
@@ -173,9 +173,23 @@ export default function VehicleTests() {
 
         setLoading(true);
         try {
-            const inspectionDate = new Date().toISOString();
+            const inspectionDate = new Date();  // Create a Date object from the current date
             const vehicleData = selectedVehicle ? selectedVehicle : {};
             const ownerId = vehicleData.owner?._id;
+            const vehicleMFD = new Date(vehicleData.mfd);  // Ensure MFD is a Date object
+
+            // Calculate vehicle age in years
+            const vehicleAge = inspectionDate.getFullYear() - vehicleMFD.getFullYear();
+            let nextInspectionDate = new Date(inspectionDate);  // Create a new Date object for nextInspectionDate
+
+            // Determine next inspection date based on vehicle age
+            if (vehicleAge < 6) {
+                nextInspectionDate.setFullYear(inspectionDate.getFullYear() + 1);  // 12 months later
+            } else if (vehicleAge <= 10) {
+                nextInspectionDate.setMonth(inspectionDate.getMonth() + 9);  // 9 months later
+            } else {
+                nextInspectionDate.setMonth(inspectionDate.getMonth() + 6);  // 6 months later
+            }
 
             // Prepare data for WOF inspection
             const wofData = {
@@ -196,13 +210,13 @@ export default function VehicleTests() {
                     "Exhaust System": ratings.exhaustSystem,
                     "Fuel System": ratings.fuelSystem,
                 },
-                inspectionDate,
+                inspectionDate: inspectionDate.toISOString(),
+                nextInspectionDate: nextInspectionDate.toISOString(),
                 finalScore: results?.final_score,
                 outcome: results.outcome,
                 highCriticalConcerns: results?.high_critical_concern || [],
                 examinerId: examinerDetails?._id,
             };
-
 
             const requiredFields = [
                 'fuelSystem', 'exhaustSystem', 'speedometer', 'airbags',
@@ -243,6 +257,7 @@ export default function VehicleTests() {
             setLoading(false);
         }
     };
+
 
 
     const handleReset = () => {
