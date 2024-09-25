@@ -22,6 +22,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { getWOFSByToken } from '../../../../../services/wofService';
 import { getVehicles } from '../../../../../services/AppointmentService';
 import {downloadInspectionReport} from "../../../../../services/reportService";
+import { Link as MUILink } from '@mui/material';
 
 export default function WOFInspectionHistory() {
     const [vehicles, setVehicles] = useState([]);
@@ -179,6 +180,20 @@ export default function WOFInspectionHistory() {
                                             <Typography variant="body2" color="textSecondary">No critical concerns</Typography>
                                         )}
                                     </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Typography variant="body2">
+                                            <strong>Next Inspection Date: </strong>
+                                            {inspection.nextInspectionDate ?
+                                                new Date(inspection.nextInspectionDate).toLocaleDateString()
+                                                : ' N/A - '}
+                                            {!inspection.nextInspectionDate && (
+                                                <MUILink href="/dashboard/reports" underline="hover" color="primary">
+                                                    contact support
+                                                </MUILink>
+                                            )}
+                                        </Typography>
+                                    </Grid>
+
                                 </Grid>
                                 {/* Download Button */}
                                 <Box mt={2} textAlign="right">
