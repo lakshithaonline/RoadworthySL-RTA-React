@@ -11,7 +11,7 @@ import {
     Container, Dialog, DialogActions, DialogContent, DialogTitle,
     Divider,
     Grid,
-    IconButton, TextField,
+    IconButton, ListItem, ListItemText, TextField,
     Typography,
 } from '@mui/material';
 import {ArrowLeft, ArrowRight} from '@mui/icons-material';
@@ -26,6 +26,8 @@ import {
 } from "../../../../../services/AppointmentService";
 import {format} from "date-fns";
 import {getUserByToken} from "../../../../../services/userService";
+import List from "@mui/material/List";
+import ReplaySharpIcon from '@mui/icons-material/ReplaySharp';
 
 // Utility function to get the current time of day
 const getTimeOfDay = () => {
@@ -570,8 +572,67 @@ function RecentIssueReportsWidget() {
     );
 }
 
-// Next Inspection Prediction Widget
-function NextInspectionPredictionWidget() {
+//Inspection tracker
+function InspectionStatusTrackerWidget() {
+    const [vehicles, setVehicles] = useState([]);
+    const [allInspections, setAllInspections] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            setLoading(true);
+            try {
+                const vehiclesData = await getVehicles();
+                setVehicles(vehiclesData);
+            } catch (err) {
+                setError('Unable to load vehicles. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVehicles();
+    }, []);
+
+    useEffect(() => {
+        const fetchAllInspections = async () => {
+            setLoading(true);
+            try {
+                const inspectionsData = await getWOFSByToken();
+                setAllInspections(inspectionsData);
+            } catch (err) {
+                setError('Unable to fetch WOF records. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAllInspections();
+    }, []);
+
+    const getLatestInspection = (vehicleId) => {
+        const inspections = allInspections.filter(inspection =>
+            inspection.vehicle._id === vehicleId
+        );
+        return inspections.length > 0 ? inspections[0] : null;
+    };
+
+    const getInspectionStatus = (outcome) => {
+        return outcome === 1 ? 'Passed' : 'Failed';
+    };
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error) {
+        return <Typography color="error">{error}</Typography>;
+    }
+
     return (
         <Card
             sx={{
@@ -579,7 +640,6 @@ function NextInspectionPredictionWidget() {
                 mb: 3,
                 boxShadow: 4,
                 borderRadius: 3,
-                height: 265,
                 transition: 'transform 0.2s ease-in-out',
                 '&:hover': {
                     transform: 'scale(1.02)',
@@ -588,14 +648,46 @@ function NextInspectionPredictionWidget() {
         >
             <CardContent>
                 <Typography variant="h6" gutterBottom>
-                    Next Inspection Prediction
+                    Inspection Status Tracker
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
-                    Based on your vehicle's history, the next inspection is likely required by:
-                </Typography>
-                <Typography variant="h5" color="text.primary" sx={{mt: 1}}>
-                    September 10th, 2024
-                </Typography>
+                <List>
+                    {vehicles.map((vehicle) => {
+                        const latestInspection = getLatestInspection(vehicle._id);
+                        const inspectionStatus = latestInspection ? getInspectionStatus(latestInspection.outcome) : 'No inspections available';
+                        const inspectionDate = latestInspection && latestInspection.inspectionDate
+                            ? new Date(latestInspection.inspectionDate).toLocaleDateString()
+                            : 'No inspection date available';
+
+                        return (
+                            <div key={vehicle._id}>
+                                <ListItem>
+                                    <ListItemText
+                                        primary={`Vehicle: ${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`}
+                                        secondary={
+                                            <>
+                                                <div>Latest Inspection Status: {inspectionStatus}</div>
+                                                <div>Inspection Date: {inspectionDate}</div>
+                                                {latestInspection && latestInspection.outcome !== 1 && (
+                                                    <Button
+                                                        onClick={() => navigate('/dashboard/appointments')}
+                                                        size="small"
+                                                        variant="contained"
+                                                        color="primary"
+                                                        sx={{ borderRadius: 1, marginTop: 1,  }}
+                                                    >
+                                                        <ReplaySharpIcon />
+                                                    </Button>
+                                                )}
+                                            </>
+                                        }
+                                    />
+
+                                </ListItem>
+                                <Divider />
+                            </div>
+                        );
+                    })}
+                </List>
             </CardContent>
         </Card>
     );
@@ -750,7 +842,7 @@ export default function DashboardContent() {
                 </Grid>
                 <Grid item xs={12} md={6} lg={4}>
                     <RecentIssueReportsWidget/>
-                    <NextInspectionPredictionWidget/>
+                    <InspectionStatusTrackerWidget/>
                 </Grid>
                 <Grid item xs={12} md={12} lg={4}>
                     <InteractiveAppointmentBooking/>
