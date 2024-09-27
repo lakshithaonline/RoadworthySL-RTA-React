@@ -7,6 +7,26 @@ const getAuthToken = () => {
     return user ? user.token : null;
 };
 
+const ExaminerToken = () => {
+    const examiner = JSON.parse(localStorage.getItem('examinerToken'));
+    return examiner ? examiner.token : null;
+};
+
+// New API Service to approve an appointment
+export const approveAppointment = async (appointmentId) => {
+    const headers = { Authorization: `Bearer ${ExaminerToken()}` };
+    const response = await axios.post(`${API_URL}/examiner/approve-appointment/${appointmentId}`, {}, { headers });
+    return response.data;
+};
+
+
+// New API Service to get appointments for an examiner
+export const getExaminerAppointments = async () => {
+    const headers = { Authorization: `Bearer ${ExaminerToken()}` };
+    const response = await fetch(`${API_URL}/examiner/appointments`, { headers });
+    return response.json();
+};
+
 export const getVehicles = async () => {
     const headers = { Authorization: `Bearer ${getAuthToken()}` };
     const response = await axios.get(`${API_URL}/user/vehicles`, { headers });

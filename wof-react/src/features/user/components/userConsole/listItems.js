@@ -6,11 +6,12 @@ import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
-import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
 import ReportIcon from '@mui/icons-material/Report';
 import BuildIcon from '@mui/icons-material/Build';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 
 export const mainListItems = (
     <React.Fragment>
@@ -34,9 +35,15 @@ export const mainListItems = (
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/appointments">
             <ListItemIcon>
-                <EventIcon/>
+                <DateRangeIcon/>
             </ListItemIcon>
             <ListItemText primary="Appointments"/>
+        </ListItemButton>
+        <ListItemButton component={Link} to="/dashboard/appointments-management">
+            <ListItemIcon>
+                <AssignmentTurnedInIcon/>
+            </ListItemIcon>
+            <ListItemText primary="Appointments Management"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/customers">
             <ListItemIcon>

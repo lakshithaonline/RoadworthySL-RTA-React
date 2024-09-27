@@ -17,10 +17,11 @@ import {
     getExaminerDetails
 } from "../../../../../services/examinerService";
 import {useNavigate} from "react-router-dom";
-import {getAllWOFs} from "../../../../../services/wofService";
+import {getAllWOFs, getWOFsByLoggedInExaminer} from "../../../../../services/wofService";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import {getExaminerAppointments} from "../../../../../services/AppointmentService";
 
 const getTimeOfDay = () => {
     const hours = new Date().getHours();
@@ -28,13 +29,6 @@ const getTimeOfDay = () => {
     if (hours < 18) return 'Good Afternoon';
     return 'Good Evening';
 };
-
-
-const performanceMetricsData = [
-    { time: 'Jan', inspections: 30 },
-    { time: 'Feb', inspections: 45 },
-    { time: 'Mar', inspections: 40 },
-];
 
 const issueReportsData = [
     { id: '1', issue: 'Brake Issue', status: 'Pending' },
@@ -49,6 +43,62 @@ export default function ExaminerDashboard() {
     const [bookedSlots, setBookedSlots] = useState([]);
     const [recentVehicles, setRecentVehicles] = useState([]);
     const [inspectionStatsData, setInspectionStatsData] = useState([]);
+    const [wofExaminer, setWofExaminer] = useState([]);
+    const [inspectionPerformanceData, setInspectionPerformanceData] = useState([]); // State to store dynamic performance data
+
+    useEffect(() => {
+        const fetchInspectionsByExaminer = async () => {
+            setLoading(true);
+            try {
+                const response = await getWOFsByLoggedInExaminer();
+                const inspectionsData = response.wofs;
+
+                setWofExaminer(inspectionsData);
+
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const days = Array(7).fill(0);
+                const dayLabels = [];
+                const isTodayArray = [];
+
+                for (let i = 0; i < 7; i++) {
+                    const currentDay = new Date(startOfWeek);
+                    currentDay.setDate(startOfWeek.getDate() + i);
+
+                    const formattedDate = `${currentDay.getMonth() + 1}/${currentDay.getDate()}`;
+                    dayLabels.push(formattedDate);
+
+                    isTodayArray.push(currentDay.toDateString() === now.toDateString());
+                }
+
+                inspectionsData.forEach((inspection) => {
+                    const inspectionDate = new Date(inspection.inspectionDate);
+
+                    if (inspectionDate >= startOfWeek && inspectionDate <= now) {
+                        const dayIndex = inspectionDate.getDay();
+                        days[dayIndex] += 1;
+                    }
+                });
+
+                setInspectionPerformanceData(days.map((count, index) => ({
+                    day: dayLabels[index],
+                    inspections: count,
+                    isToday: isTodayArray[index],
+                })));
+            } catch (err) {
+                setError('Unable to fetch WOF records. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInspectionsByExaminer();
+    }, []);
+
 
 
     useEffect(() => {
@@ -119,7 +169,7 @@ export default function ExaminerDashboard() {
     useEffect(() => {
         const fetchBookedSlots = async () => {
             try {
-                const slotsData = await getAllBookedSlots();
+                const slotsData = await getExaminerAppointments();
                 setBookedSlots(slotsData);
 
             } catch (error) {
@@ -420,19 +470,32 @@ export default function ExaminerDashboard() {
                             <Typography variant="h6" gutterBottom>Examiner Performance Metrics</Typography>
                             <ResponsiveContainer width="100%" height={200}>
                                 <LineChart
-                                    data={performanceMetricsData}
+                                    data={inspectionPerformanceData}
                                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                 >
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="time" />
+                                    <XAxis dataKey="day" />
                                     <YAxis />
-                                    <Tooltip />
+                                    <Tooltip content={({ active, payload }) => {
+                                        if (active && payload && payload.length) {
+                                            const { day, inspections, isToday } = payload[0].payload;
+                                            return (
+                                                <div className="custom-tooltip" style={{ padding: '10px', background: '#fff', border: '1px solid #ccc' }}>
+                                                    <p>{day} {isToday ? "(Today)" : ""}</p>
+                                                    <p>Inspections: {inspections}</p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }} />
                                     <Line type="monotone" dataKey="inspections" stroke="#8884d8" activeDot={{ r: 8 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                 </Grid>
+
+
             </Grid>
         </Container>
     );

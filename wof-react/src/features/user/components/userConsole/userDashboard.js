@@ -30,6 +30,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import {ListItemIcon, ListItemText} from "@mui/material";
 import ListItemButton from "@mui/material/ListItemButton";
 import Notification from "./pages/Notification";
+import AppointmentsManagement from "./pages/AppointmentsManagement";
 
 function Copyright(props) {
     return (
@@ -126,6 +127,8 @@ export default function UserDashboard() {
                 return 'Vehicle Management';
             case '/dashboard/vehicle-test':
                 return 'Vehicle Test';
+            case '/dashboard/appointments-management':
+                return 'Appointments Management';
             default:
                 return 'User Dashboard';
         }
@@ -234,6 +237,7 @@ export default function UserDashboard() {
                                 <Route path="reports" element={<Reports/>}/>
                                 <Route path="vehicle-management" element={<VehicleManagement/>}/>
                                 <Route path="vehicle-test" element={<VehicleTests/>}/>
+                                <Route path="appointments-management" element={<AppointmentsManagement/>}/>
                             </Routes>
                         </Grid>
                         <Copyright sx={{pt: 4}}/>

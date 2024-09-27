@@ -31,6 +31,7 @@ import UpdatedTheme from "../examinerDashboard/updatedTheme";
 import {ListItemIcon, ListItemText} from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ListItemButton from "@mui/material/ListItemButton";
+import AppointmentManager from "./pages/AppointmentManager";
 
 function Copyright(props) {
     return (
@@ -127,6 +128,8 @@ export default function ExaminerDashboard() {
                 return 'Vehicle Management';
             case '/dashboard/vehicle-test':
                 return 'Vehicle Test';
+            case '/dashboard/appointment-manager':
+                return 'Appointment Manager';
             default:
                 return 'Examiner Dashboard';
         }
@@ -223,6 +226,7 @@ export default function ExaminerDashboard() {
                                 <Route path="reports" element={<Reports/>}/>
                                 <Route path="vehicle-management" element={<VehicleManagement/>}/>
                                 <Route path="vehicle-test" element={<VehicleTests/>}/>
+                                <Route path="appointment-manager" element={<AppointmentManager/> }/>
                             </Routes>
                         </Grid>
                         <Copyright sx={{pt: 4}}/>

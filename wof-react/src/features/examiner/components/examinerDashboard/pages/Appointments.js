@@ -21,10 +21,11 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { getAllBookedSlots, getAllUsers } from "../../../../../services/examinerService";
+import {getExaminerAppointments} from "../../../../../services/AppointmentService";
 
 export default function Appointments() {
     const [bookedSlots, setBookedSlots] = useState([]);
-    const [ setUsers] = useState([]);
+    const [users, setUsers] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElUA, setAnchorElUA] = useState(null);
     const [selectedSlotId, setSelectedSlotId] = useState(null);
@@ -37,7 +38,7 @@ export default function Appointments() {
     useEffect(() => {
         const fetchBookedSlotsAndUsers = async () => {
             try {
-                const slotsData = await getAllBookedSlots();
+                const slotsData = await getExaminerAppointments();
                 const usersData = await getAllUsers();
 
                 // Create a mapping of userId to username
