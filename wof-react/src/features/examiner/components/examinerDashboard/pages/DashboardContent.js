@@ -9,9 +9,18 @@ import {
     Box,
     List,
     ListItem,
-    ListItemText,
+    ListItemText, CircularProgress, Alert, Divider,
 } from '@mui/material';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+    getAllBookedSlots, getAllVehiclesWithOwners,
+    getExaminerDetails
+} from "../../../../../services/examinerService";
+import {useNavigate} from "react-router-dom";
+import {getAllWOFs} from "../../../../../services/wofService";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 
 const getTimeOfDay = () => {
     const hours = new Date().getHours();
@@ -20,23 +29,6 @@ const getTimeOfDay = () => {
     return 'Good Evening';
 };
 
-const dailyScheduleData = [
-    { time: '9:00 AM', inspection: 'Inspection 1' },
-    { time: '10:00 AM', inspection: 'Inspection 2' },
-    { time: '11:00 AM', inspection: 'Inspection 3' },
-    { time: '1:00 PM', inspection: 'Inspection 4' },
-];
-
-const vehicleRegistrationData = [
-    { id: 'ABC123', owner: 'John Doe', vehicle: 'Toyota Corolla 2021' },
-    { id: 'DEF456', owner: 'Jane Smith', vehicle: 'Honda Civic 2022' },
-];
-
-const inspectionStatsData = [
-    { name: 'Pass', value: 400 },
-    { name: 'Fail', value: 300 },
-    { name: 'Critical Concerns', value: 100 },
-];
 
 const performanceMetricsData = [
     { time: 'Jan', inspections: 30 },
@@ -50,11 +42,139 @@ const issueReportsData = [
 ];
 
 export default function ExaminerDashboard() {
-    const [userName, setUserName] = useState('Lakshitha');
+    const [userName, setUserName] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const [bookedSlots, setBookedSlots] = useState([]);
+    const [recentVehicles, setRecentVehicles] = useState([]);
+    const [inspectionStatsData, setInspectionStatsData] = useState([]);
+
 
     useEffect(() => {
-        setUserName('Lakshitha');
+        const fetchWOFReports = async () => {
+            try {
+                const allWOFsData = await getAllWOFs();
+                const allWOFs = allWOFsData.wofs;
+
+                const now = new Date();
+                const ninetyDaysAgo = new Date(now.setDate(now.getDate() - 90));
+                const recentWOFs = allWOFs.filter(wof => new Date(wof.inspectionDate) >= ninetyDaysAgo);
+
+                let passCount = 0;
+                let failCount = 0;
+                let passWithMediumConcernsCount = 0;
+
+                recentWOFs.forEach(wof => {
+                    if (wof.outcome === 1) {
+                        // Pass
+                        const hasMediumConcerns = wof.highCriticalConcerns.some(concern => concern.severity === "Medium");
+                        if (hasMediumConcerns) {
+                            passWithMediumConcernsCount++;
+                        } else {
+                            passCount++;
+                        }
+                    } else if (wof.outcome === 0) {
+                        // Failed
+                        failCount++;
+                    }
+                });
+
+                setInspectionStatsData([
+                    { name: 'Pass', value: passCount },
+                    { name: 'Failed', value: failCount },
+                    { name: 'Pass with Medium Concerns', value: passWithMediumConcernsCount }
+                ]);
+            } catch (error) {
+                console.error('Error fetching WOF reports:', error);
+            }
+        };
+
+        fetchWOFReports();
     }, []);
+
+    useEffect(() => {
+        const fetchRecentVehicles = async () => {
+            try {
+                const vehiclesData = await getAllVehiclesWithOwners();
+                const now = new Date();
+                const threeDaysAgo = new Date(now.setDate(now.getDate() - 3));
+
+                // Filter vehicles registered within the last 30 days
+                const recentVehiclesList = vehiclesData.filter(vehicle => {
+                    const registrationDate = new Date(vehicle.createdAt);
+                    return registrationDate >= threeDaysAgo;
+                });
+
+                setRecentVehicles(recentVehiclesList);
+            } catch (error) {
+                console.error('Error fetching recent vehicles:', error);
+            }
+        };
+
+        fetchRecentVehicles();
+    }, []);
+
+
+    useEffect(() => {
+        const fetchBookedSlots = async () => {
+            try {
+                const slotsData = await getAllBookedSlots();
+                setBookedSlots(slotsData);
+
+            } catch (error) {
+                console.error('Error fetching booked slots or users:', error);
+            }
+        };
+
+        fetchBookedSlots();
+    }, []);
+
+    const now = new Date();
+    const nowDateString = now.toDateString();
+
+    const upcomingSlots = Array.isArray(bookedSlots)
+        ? bookedSlots.filter(slot => {
+            const slotDate = new Date(slot.date);
+            const slotDateString = slotDate.toDateString();
+
+            const timeDifference = slotDate.getTime() - now.getTime();
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+            const isWithin24Hours = hoursDifference <= 24 && hoursDifference >= 0;
+            return slotDateString === nowDateString || isWithin24Hours;
+        })
+        : [];
+
+
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                const customerData = await getExaminerDetails();
+                setUserName(customerData.firstname);
+            } catch (err) {
+                setError('Unable to load data. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    const handleViewAllAppointments = () => {
+        navigate('/dashboard/examiner/appointments');
+    };
+
+    const handleRegisterNewVehicle = () => {
+        navigate('/dashboard/examiner/vehicle-test');
+    };
+
+    if (loading) return <CircularProgress />;
+    if (error) return <Alert severity="error">{error}</Alert>;
 
     return (
         <Container
@@ -77,59 +197,152 @@ export default function ExaminerDashboard() {
                 <Grid item xs={12} lg={4}>
                     <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Daily Schedule Overview</Typography>
-                            <List>
-                                {dailyScheduleData.map((item, index) => (
-                                    <ListItem key={index}>
-                                        <ListItemText primary={item.inspection} secondary={item.time} />
+                            <Typography variant="h6" gutterBottom>
+                                Daily Schedule Overview
+                            </Typography>
+
+                            <List
+                                sx={{
+                                    maxHeight: upcomingSlots.length > 3 ? '300px' : 'none',
+                                    overflowY: upcomingSlots.length > 3 ? 'auto' : 'hidden',
+                                    paddingRight: '0.5rem',
+
+                                    scrollbarWidth: 'thin',
+                                    scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent',
+                                    '&::-webkit-scrollbar': {
+                                        width: '0px',
+                                    },
+                                    '&:hover::-webkit-scrollbar': {
+                                        width: '6px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                                        borderRadius: '10px',
+                                    },
+                                }}
+                            >
+                                {upcomingSlots.length > 0 ? (
+                                    upcomingSlots
+                                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                                        .map((item, index) => (
+                                            <ListItem key={index} sx={{ padding: 0 }}>
+                                                <Card
+                                                    sx={{
+                                                        backgroundColor: '#f5f5f5',
+                                                        margin: '8px 0',
+                                                        width: '100%',
+                                                        boxShadow: 2,
+                                                    }}
+                                                >
+                                                    <CardContent>
+                                                        <Typography variant="h6" component="div">
+                                                            {item.registrationNumber}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {new Date(item.date).toLocaleDateString()} - {item.time}
+                                                        </Typography>
+                                                    </CardContent>
+                                                </Card>
+                                            </ListItem>
+                                        ))
+                                ) : (
+                                    <ListItem>
+                                        <ListItemText primary="No appointments for today." />
                                     </ListItem>
-                                ))}
+                                )}
                             </List>
-                            <Button variant="contained" size="small" fullWidth>View All Appointments</Button>
+
+                            <Button variant="contained" size="small" fullWidth onClick={handleViewAllAppointments}>
+                                View All Appointments
+                            </Button>
                         </CardContent>
                     </Card>
                 </Grid>
 
+
                 {/* Row 2: Vehicle Registration Summary and Predictive Insights */}
                 <Grid item xs={12} lg={4}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
+                        {/* Vehicle Registration Summary */}
                         <Card sx={{ boxShadow: 4, borderRadius: 3, flex: 1 }}>
                             <CardContent>
-                                <Typography variant="h6" gutterBottom>Vehicle Registration Summary</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    {vehicleRegistrationData.map((vehicle, index) => (
-                                        <Box key={index}>
-                                            <Typography variant="body1" color="text.primary">{vehicle.vehicle}</Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Registration: {vehicle.id} | Owner: {vehicle.owner}
-                                            </Typography>
-                                        </Box>
-                                    ))}
-                                </Box>
-                                <Button variant="contained" size="small" fullWidth sx={{ mt: 2 }}>Register New Vehicle</Button>
+                                <Typography variant="h6" gutterBottom>
+                                    Vehicle Registration Summary
+                                </Typography>
+
+                                {recentVehicles.length > 0 ? (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                            maxHeight: recentVehicles.length > 6 ? '300px' : 'none',
+                                            overflowY: recentVehicles.length > 6 ? 'auto' : 'hidden',
+                                            scrollbarWidth: 'thin',
+                                            scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent',
+                                            '&::-webkit-scrollbar': {
+                                                width: '0px',
+                                            },
+                                            '&:hover::-webkit-scrollbar': {
+                                                width: '6px',
+                                            },
+                                            '&::-webkit-scrollbar-thumb': {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                                                borderRadius: '10px',
+                                            },
+                                        }}
+                                    >
+                                        {recentVehicles
+                                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                                            .map((vehicle, index) => (
+                                                <Box key={index}>
+                                                    <Typography variant="body1" color="text.primary">
+                                                        {vehicle.make} {vehicle.model}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        Registration: {vehicle.registrationNumber} | Owner ID: {vehicle.owner.username}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                    </Box>
+                                ) : (
+                                    <Typography variant="body2" color="text.secondary">
+                                        No recent vehicle registrations.
+                                    </Typography>
+                                )}
+
+                                <Button variant="contained" size="small" fullWidth sx={{ mt: 2 }} onClick={handleRegisterNewVehicle}>
+                                    Register New Vehicle
+                                </Button>
                             </CardContent>
                         </Card>
 
-                        <Card sx={{ boxShadow: 4, borderRadius: 3, flex: 1 }}>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom>Predictive Insights for Inspections</Typography>
-                                <Typography variant="body1" color="text.secondary">
-                                    Based on historical data, the following vehicles are at high risk of failing their next inspection:
-                                </Typography>
-                                <List>
-                                    <ListItem>Vehicle ABC123 (High Risk)</ListItem>
-                                    <ListItem>Vehicle DEF456 (Moderate Risk)</ListItem>
-                                </List>
-                            </CardContent>
-                        </Card>
+                        {/* Predictive Insights for Inspections */}
+                        {/*<Card sx={{ boxShadow: 4, borderRadius: 3, flex: 1 }}>*/}
+                        {/*    <CardContent>*/}
+                        {/*        <Typography variant="h6" gutterBottom>*/}
+                        {/*            Predictive Insights for Inspections*/}
+                        {/*        </Typography>*/}
+                        {/*        <Typography variant="body1" color="text.secondary">*/}
+                        {/*            Based on historical data, the following vehicles are at high risk of failing their next inspection:*/}
+                        {/*        </Typography>*/}
+                        {/*        <List>*/}
+                        {/*            <ListItem>Vehicle ABC123 (High Risk)</ListItem>*/}
+                        {/*            <ListItem>Vehicle DEF456 (Moderate Risk)</ListItem>*/}
+                        {/*        </List>*/}
+                        {/*    </CardContent>*/}
+                        {/*</Card>*/}
                     </Box>
                 </Grid>
+
 
                 {/* Row 3 */}
                 <Grid item xs={12} lg={4}>
                     <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Inspection Statistics & Trends</Typography>
+                            <Typography variant="h6" gutterBottom>
+                                Inspection Statistics & Trends
+                            </Typography>
                             <ResponsiveContainer width="100%" height={200}>
                                 <PieChart>
                                     <Pie
@@ -142,15 +355,44 @@ export default function ExaminerDashboard() {
                                         dataKey="value"
                                     >
                                         {inspectionStatsData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={index === 0 ? '#0088FE' : index === 1 ? '#00C49F' : '#FF8042'} />
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={
+                                                    index === 0 ? '#0088FE' : // Pass – Blue
+                                                        index === 1 ? '#FF8042' : // Failed – Orange
+                                                            '#00C49F' // Pass with Medium Concerns – Green
+                                                }
+                                            />
                                         ))}
                                     </Pie>
                                     <Tooltip />
                                 </PieChart>
                             </ResponsiveContainer>
+                            <Box>
+                                <Divider sx={{ mb: 2 }} /> {/* Top Divider */}
+
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                    Inspection Statistics
+                                </Typography>
+
+                                <Typography variant="body2" sx={{ mb: 1 }}>
+                                    <CheckCircleIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                                    Pass: {inspectionStatsData[0]?.value} <br />
+
+                                    <CancelIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                                    Failed: {inspectionStatsData[1]?.value} <br />
+
+                                    <WarningAmberIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                                    Pass with Medium Concerns: {inspectionStatsData[2]?.value}
+                                </Typography>
+
+                                <Divider sx={{ mt: 2 }} /> {/* Bottom Divider */}
+                            </Box>
+
                         </CardContent>
                     </Card>
                 </Grid>
+
 
                 {/* Row 4 */}
                 <Grid item xs={12} lg={6}>
