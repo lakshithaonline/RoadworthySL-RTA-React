@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {
     Alert,
     Button,
-    CardContent,
     Container,
     Grid,
     List,
@@ -35,6 +34,7 @@ const Appointments = () => {
     const [selectedTime, setSelectedTime] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('error'); // Control success/error
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,10 +45,8 @@ const Appointments = () => {
             } catch (error) {
             }
         };
-        fetchData().then(() => {
-        });
+        fetchData();
     }, []);
-
 
     const fetchVehicles = async () => {
         try {
@@ -108,25 +106,26 @@ const Appointments = () => {
         const today = new Date();
 
         if (selectedDateTime.getDay() === 0 || selectedDateTime.getDay() === 6) {
-            handleSnackbarOpen('Booking on weekends is not allowed.');
+            handleSnackbarOpen('Booking on weekends is not allowed.', 'error');
             return;
         }
         if (selectedDateTime < today) {
-            handleSnackbarOpen('Booking on past dates is not allowed.');
+            handleSnackbarOpen('Booking on past dates is not allowed.', 'error');
             return;
         }
         try {
             const response = await createAppointment(selectedDate, selectedTime, selectedVehicle);
-            handleSnackbarOpen(response.message);
+            handleSnackbarOpen(response.message, 'success');
             await fetchAllBookedSlots();
             await fetchUserAppointments();
         } catch (error) {
-            handleSnackbarOpen(error.response.data.message);
+            handleSnackbarOpen(error.response.data.message, 'error');
         }
     };
 
-    const handleSnackbarOpen = (message) => {
+    const handleSnackbarOpen = (message, severity) => {
         setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
         setSnackbarOpen(true);
     };
 
@@ -162,9 +161,9 @@ const Appointments = () => {
             <Typography variant="h4" gutterBottom>
                 Book Appointments
             </Typography>
-            <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={3} sx={{padding: 2}}>
+            <Grid container spacing={4}>
+                <Grid item xs={12} md={8}>
+                    <Paper elevation={3} sx={{padding: 3, height: '100%'}}>
                         <FullCalendar
                             plugins={[dayGridPlugin, interactionPlugin]}
                             initialView="dayGridMonth"
@@ -174,18 +173,19 @@ const Appointments = () => {
                             }))}
                             dateClick={handleDateClick}
                             eventContent={renderEventContent}
+                            height="auto"
                         />
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <Paper elevation={3} sx={{padding: 2}}>
+                <Grid item xs={12} md={4}>
+                    <Paper elevation={3} sx={{padding: 3}}>
                         <Typography variant="h6" gutterBottom>
                             Available Time Slots
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" gutterBottom style={{marginTop: '-10px'}}>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>
                             Selected Date: {selectedDate}
                         </Typography>
-                        <List sx={{maxHeight: 200, overflow: 'auto'}}>
+                        <List sx={{maxHeight: 300, overflow: 'auto'}}>
                             {availableTimeSlots.map(slot => (
                                 <ListItem
                                     key={slot.time}
@@ -223,52 +223,17 @@ const Appointments = () => {
                         </Button>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <Paper elevation={3} sx={{padding: 2}}>
-                        <Typography variant="h6" gutterBottom>
-                            Your Appointments
-                        </Typography>
-                        <Grid container direction="column" spacing={2}>
-                            {userAppointments.map((appointment) => {
-                                const vehicle = vehicles.find(v => v.registrationNumber === appointment.registrationNumber);
-                                return (
-                                    <Grid item key={appointment._id}>
-                                        <Paper elevation={3} sx={{ backgroundColor: '#f5f5f5' }}>
-                                            <CardContent>
-                                                <Typography variant="body1">
-                                                    <strong>Date:</strong> {appointment.date}
-                                                </Typography>
-                                                <Typography variant="body1">
-                                                    <strong>Time:</strong> {appointment.time}
-                                                </Typography>
-                                                {vehicle ? (
-                                                    <Typography variant="body1">
-                                                        <strong>Vehicle:</strong> {vehicle.registrationNumber} - {vehicle.make} {vehicle.model}
-                                                    </Typography>
-                                                ) : (
-                                                    <Typography variant="body1" color="error">
-                                                        Vehicle details not available
-                                                    </Typography>
-                                                )}
-                                            </CardContent>
-                                        </Paper>
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    </Paper>
-                </Grid>
             </Grid>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={4000}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
             >
                 <Alert
                     onClose={handleSnackbarClose}
-                    severity="error" // or "success" for success messages, "warning" for warnings, etc.
-                    sx={{width: '100%', backgroundColor: 'black', color: 'white'}}
+                    severity={snackbarSeverity}
+                    sx={{width: '100%'}}
                 >
                     {snackbarMessage}
                 </Alert>
