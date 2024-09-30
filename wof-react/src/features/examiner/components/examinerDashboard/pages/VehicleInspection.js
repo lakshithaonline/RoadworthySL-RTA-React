@@ -5,13 +5,22 @@ import {
     Button,
     CircularProgress,
     Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Grid,
     Paper,
     Snackbar,
     TextField,
     Typography
 } from '@mui/material';
-import {getAllVehiclesWithOwners, getExaminerDetails, submitRatings} from "../../../../../services/examinerService";
+import {
+    getAllVehiclesWithOwners,
+    getExaminerDetails,
+    registerVehicleByExaminer,
+    submitRatings
+} from "../../../../../services/examinerService";
 import {Autocomplete} from "@mui/lab";
 import {createWOF} from "../../../../../services/wofService";
 
@@ -41,7 +50,19 @@ export default function VehicleTests() {
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [submitted, setSubmitted] = useState(false);
     const [examinerDetails, setExaminerDetails] = useState(null);
-//TODO: add select inspection period: for 3month, 6 month 12 months: this will decide the inspection report validation and cost for WOF
+    const [newVehicle, setNewVehicle] = useState({
+        registrationNumber: '',
+        make: '',
+        model: '',
+        vinNumber: '',
+        mfd: '',
+        reg: '',
+        mileage: ''
+    });
+    const [openAddVehicleModal, setOpenAddVehicleModal] = useState(false);
+
+
+    //TODO: add select inspection period: for 3month, 6 month 12 months: this will decide the inspection report validation and cost for WOF
     useEffect(() => {
         const storedRatings = JSON.parse(localStorage.getItem('vehicleRatings'));
         if (storedRatings) {
@@ -91,7 +112,6 @@ export default function VehicleTests() {
                 ...prevErrors,
                 [param]: ''
             }));
-            // Save ratings to localStorage
             localStorage.setItem('vehicleRatings', JSON.stringify(newRatings));
         } else {
             setErrors((prevErrors) => ({
@@ -173,22 +193,20 @@ export default function VehicleTests() {
 
         setLoading(true);
         try {
-            const inspectionDate = new Date();  // Create a Date object from the current date
+            const inspectionDate = new Date();
             const vehicleData = selectedVehicle ? selectedVehicle : {};
             const ownerId = vehicleData.owner?._id;
-            const vehicleMFD = new Date(vehicleData.mfd);  // Ensure MFD is a Date object
+            const vehicleMFD = new Date(vehicleData.mfd);
 
-            // Calculate vehicle age in years
             const vehicleAge = inspectionDate.getFullYear() - vehicleMFD.getFullYear();
-            let nextInspectionDate = new Date(inspectionDate);  // Create a new Date object for nextInspectionDate
+            let nextInspectionDate = new Date(inspectionDate);
 
-            // Determine next inspection date based on vehicle age
             if (vehicleAge < 6) {
-                nextInspectionDate.setFullYear(inspectionDate.getFullYear() + 1);  // 12 months later
+                nextInspectionDate.setFullYear(inspectionDate.getFullYear() + 1);
             } else if (vehicleAge <= 10) {
-                nextInspectionDate.setMonth(inspectionDate.getMonth() + 9);  // 9 months later
+                nextInspectionDate.setMonth(inspectionDate.getMonth() + 9);
             } else {
-                nextInspectionDate.setMonth(inspectionDate.getMonth() + 6);  // 6 months later
+                nextInspectionDate.setMonth(inspectionDate.getMonth() + 6);
             }
 
             // Prepare data for WOF inspection
@@ -229,16 +247,13 @@ export default function VehicleTests() {
                 }
             });
 
-            // API Call
             const data = await createWOF(wofData);
 
-            // Post-processing
             setResults(data);
             setSnackbarMessage('WOF inspection saved successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
         } catch (error) {
-            // Handle errors
             if (error.response) {
                 console.error('Error response:', error.response.data);
                 setSnackbarMessage(error.response.data.message || 'An error occurred');
@@ -258,6 +273,39 @@ export default function VehicleTests() {
         }
     };
 
+    const handleOpenAddVehicleModal = () => {
+        setOpenAddVehicleModal(true);
+    };
+
+    const handleCloseAddVehicleModal = () => {
+        setOpenAddVehicleModal(false);
+    };
+
+    const handleVehicleInputChange = (e) => {
+        const {name, value} = e.target;
+        setNewVehicle(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const handleSaveNewVehicle = async () => {
+        try {
+            const response = await registerVehicleByExaminer(newVehicle);
+            setSnackbarMessage('Vehicle added successfully!');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+
+            const updatedVehicles = await getAllVehiclesWithOwners();
+            setVehicles(updatedVehicles);
+            handleCloseAddVehicleModal();
+        } catch (error) {
+            console.error('Error adding vehicle:', error);
+            setSnackbarMessage('Failed to add vehicle.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+    };
 
 
     const handleReset = () => {
@@ -297,7 +345,8 @@ export default function VehicleTests() {
                 {/* Left Side: Vehicle Selection */}
                 <Grid item xs={12} md={3}>
                     <Paper sx={{padding: 2, display: 'flex', flexDirection: 'column'}}>
-                        <Typography variant="h6" gutterBottom  component="h2" sx={{marginBottom: 1, color: '#333', fontWeight: 'bold'}}>
+                        <Typography variant="h6" gutterBottom component="h2"
+                                    sx={{marginBottom: 1, color: '#333', fontWeight: 'bold'}}>
                             Vehicle Selection
                         </Typography>
                         <Autocomplete
@@ -315,7 +364,7 @@ export default function VehicleTests() {
                             fullWidth
                         />
                     </Paper>
-                    <Paper sx={{ marginTop: 2, padding: 2, display: 'flex', flexDirection: 'column', borderRadius: 1 }}>
+                    <Paper sx={{marginTop: 2, padding: 2, display: 'flex', flexDirection: 'column', borderRadius: 1}}>
                         <Typography
                             variant="h6"
                             component="h2"
@@ -331,37 +380,124 @@ export default function VehicleTests() {
                         </Typography>
                         {selectedVehicle ? (
                             <Box>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>Registration Number:</strong> {selectedVehicle.registrationNumber}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>Owner:</strong> {selectedVehicle.owner?.username}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>Make:</strong> {selectedVehicle.make}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>Model:</strong> {selectedVehicle.model}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>VIN Number:</strong> {selectedVehicle.vin}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
-                                    <strong>Manufacturing Date:</strong> {new Date(selectedVehicle.mfd).toLocaleDateString()}
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
+                                    <strong>Manufacturing
+                                        Date:</strong> {new Date(selectedVehicle.mfd).toLocaleDateString()}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
-                                    <strong>Registration Date:</strong> {new Date(selectedVehicle.reg).toLocaleDateString()}
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
+                                    <strong>Registration
+                                        Date:</strong> {new Date(selectedVehicle.reg).toLocaleDateString()}
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1" sx={{marginBottom: 1}}>
                                     <strong>Mileage:</strong> {selectedVehicle.mileage} km
                                 </Typography>
                             </Box>
                         ) : (
-                            <Typography variant="body1" sx={{ color: '#777' }}>
+                            <Typography variant="body1" sx={{color: '#777'}}>
                                 Please select a vehicle before start the inspection.
                             </Typography>
                         )}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            sx={{marginTop: 2}}
+                            onClick={handleOpenAddVehicleModal}
+                        >
+                            Add New Vehicle
+                        </Button>
                     </Paper>
+                    {/* Add Vehicle Modal */}
+                    <Dialog open={openAddVehicleModal} onClose={handleCloseAddVehicleModal}>
+                        <DialogTitle>Add New Vehicle</DialogTitle>
+                        <DialogContent>
+                            <TextField
+                                margin="dense"
+                                name="registrationNumber"
+                                label="Registration Number"
+                                type="text"
+                                fullWidth
+                                value={newVehicle.registrationNumber}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="make"
+                                label="Make"
+                                type="text"
+                                fullWidth
+                                value={newVehicle.make}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="model"
+                                label="Model"
+                                type="text"
+                                fullWidth
+                                value={newVehicle.model}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="vinNumber"
+                                label="VIN Number"
+                                type="text"
+                                fullWidth
+                                value={newVehicle.vinNumber}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="mfd"
+                                label="Manufacturing Date"
+                                type="date"
+                                fullWidth
+                                value={newVehicle.mfd}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="reg"
+                                label="Registration Date"
+                                type="date"
+                                fullWidth
+                                value={newVehicle.reg}
+                                onChange={handleVehicleInputChange}
+                            />
+                            <TextField
+                                margin="dense"
+                                name="mileage"
+                                label="Mileage"
+                                type="number"
+                                fullWidth
+                                value={newVehicle.mileage}
+                                onChange={handleVehicleInputChange}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseAddVehicleModal} color="primary" variant="outlined">
+                                Cancel
+                            </Button>
+                            <Button onClick={handleSaveNewVehicle} color="primary" variant="contained">
+                                Add Vehicle
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Grid>
 
                 {/* Middle Section: Testing Environment */}

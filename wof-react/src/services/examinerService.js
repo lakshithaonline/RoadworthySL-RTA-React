@@ -7,6 +7,27 @@ const getAuthToken = () => {
     return examiner ? examiner.token : null;
 };
 
+export const registerVehicleByExaminer = async (vehicleData) => {
+    try {
+        const response = await axios.post(`${API_URL}/examiner/vehicle-register-by-examiner`, vehicleData, {
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to register vehicle');
+        } else if (error.request) {
+            throw new Error('No response received from server');
+        } else {
+            throw new Error('An unexpected error occurred');
+        }
+    }
+};
+
+
 export const getAllBookedSlots = async () => {
     const response = await fetch(`${API_URL}/examiner/bookedSlots`, {
         headers: {
