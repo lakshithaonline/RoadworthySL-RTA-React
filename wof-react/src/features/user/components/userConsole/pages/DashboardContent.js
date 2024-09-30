@@ -29,7 +29,6 @@ import {getUserByToken} from "../../../../../services/userService";
 import List from "@mui/material/List";
 import ReplaySharpIcon from '@mui/icons-material/ReplaySharp';
 
-// Utility function to get the current time of day
 const getTimeOfDay = () => {
     const hours = new Date().getHours();
     if (hours < 12) return 'Good Morning';
@@ -44,7 +43,6 @@ function VehicleWidget({ userName }) {
     const [allInspections, setAllInspections] = useState([]);
     const [error, setError] = useState(null);
 
-    // Fetch vehicles data
     const fetchVehicles = useCallback(async () => {
         try {
             const data = await viewVehicle();
@@ -650,7 +648,7 @@ function InspectionStatusTrackerWidget() {
                 <Typography variant="h6" gutterBottom>
                     Inspection Status Tracker
                 </Typography>
-                <List>
+                <List sx={{ maxHeight: 300, overflowY: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}> {/* Hides scrollbar */}
                     {vehicles.map((vehicle) => {
                         const latestInspection = getLatestInspection(vehicle._id);
                         const inspectionStatus = latestInspection ? getInspectionStatus(latestInspection.outcome) : 'No inspections available';
@@ -673,7 +671,7 @@ function InspectionStatusTrackerWidget() {
                                                         size="small"
                                                         variant="contained"
                                                         color="primary"
-                                                        sx={{ borderRadius: 1, marginTop: 1,  }}
+                                                        sx={{ borderRadius: 1, marginTop: 1 }}
                                                     >
                                                         <ReplaySharpIcon />
                                                     </Button>
@@ -681,7 +679,6 @@ function InspectionStatusTrackerWidget() {
                                             </>
                                         }
                                     />
-
                                 </ListItem>
                                 <Divider />
                             </div>
@@ -689,6 +686,8 @@ function InspectionStatusTrackerWidget() {
                     })}
                 </List>
             </CardContent>
+
+
         </Card>
     );
 }

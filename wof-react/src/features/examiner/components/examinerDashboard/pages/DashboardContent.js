@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
-    getAllBookedSlots, getAllVehiclesWithOwners,
+    getAllVehiclesWithOwners,
     getExaminerDetails
 } from "../../../../../services/examinerService";
 import {useNavigate} from "react-router-dom";
@@ -30,11 +30,6 @@ const getTimeOfDay = () => {
     return 'Good Evening';
 };
 
-const issueReportsData = [
-    { id: '1', issue: 'Brake Issue', status: 'Pending' },
-    { id: '2', issue: 'Engine Noise', status: 'Resolved' },
-];
-
 export default function ExaminerDashboard() {
     const [userName, setUserName] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,7 +39,51 @@ export default function ExaminerDashboard() {
     const [recentVehicles, setRecentVehicles] = useState([]);
     const [inspectionStatsData, setInspectionStatsData] = useState([]);
     const [wofExaminer, setWofExaminer] = useState([]);
-    const [inspectionPerformanceData, setInspectionPerformanceData] = useState([]); // State to store dynamic performance data
+    const [inspectionPerformanceData, setInspectionPerformanceData] = useState([]);
+    const [appointmentsData, setAppointmentsData] = useState([]);
+
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            setLoading(true);
+            try {
+                const data = await getExaminerAppointments();
+                setAppointmentsData(data);
+            } catch (error) {
+                console.error("Error fetching appointments:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAppointments();
+    }, []);
+
+    const groupAppointments = (appointments) => {
+        const grouped = {
+            today: 0,
+            week: 0,
+            month: 0,
+        };
+
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        appointments.forEach(appointment => {
+            const appointmentDate = new Date(appointment.date);
+            if (appointmentDate.toDateString() === new Date().toDateString()) {
+                grouped.today += 1;
+            } else if (appointmentDate >= startOfWeek) {
+                grouped.week += 1;
+            } else if (appointmentDate >= startOfMonth) {
+                grouped.month += 1;
+            }
+        });
+
+        return grouped;
+    };
+
+    const { today, week, month } = groupAppointments(appointmentsData);
 
     useEffect(() => {
         const fetchInspectionsByExaminer = async () => {
@@ -366,22 +405,6 @@ export default function ExaminerDashboard() {
                                 </Button>
                             </CardContent>
                         </Card>
-
-                        {/* Predictive Insights for Inspections */}
-                        {/*<Card sx={{ boxShadow: 4, borderRadius: 3, flex: 1 }}>*/}
-                        {/*    <CardContent>*/}
-                        {/*        <Typography variant="h6" gutterBottom>*/}
-                        {/*            Predictive Insights for Inspections*/}
-                        {/*        </Typography>*/}
-                        {/*        <Typography variant="body1" color="text.secondary">*/}
-                        {/*            Based on historical data, the following vehicles are at high risk of failing their next inspection:*/}
-                        {/*        </Typography>*/}
-                        {/*        <List>*/}
-                        {/*            <ListItem>Vehicle ABC123 (High Risk)</ListItem>*/}
-                        {/*            <ListItem>Vehicle DEF456 (Moderate Risk)</ListItem>*/}
-                        {/*        </List>*/}
-                        {/*    </CardContent>*/}
-                        {/*</Card>*/}
                     </Box>
                 </Grid>
 
@@ -448,18 +471,31 @@ export default function ExaminerDashboard() {
                 <Grid item xs={12} lg={6}>
                     <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Issue Reports Management</Typography>
-                            <List>
-                                {issueReportsData.map((report) => (
-                                    <ListItem key={report.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body1">{report.issue}</Typography>
-                                        <Typography variant="body2" color={report.status === 'Pending' ? 'error' : 'success.main'}>
-                                            {report.status}
-                                        </Typography>
-                                    </ListItem>
-                                ))}
-                            </List>
-                            <Button variant="contained" size="small" fullWidth>View All Reports</Button>
+                            <Typography variant="h6" gutterBottom>Approved Appointments Management</Typography>
+                            {loading ? (
+                                <Typography>Loading...</Typography>
+                            ) : (
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={4}>
+                                        <Card sx={{ padding: 2, backgroundColor: '#e3f2fd' }}>
+                                            <Typography variant="h6">Today's Appointments</Typography>
+                                            <Typography variant="body1" color="primary">{today}</Typography>
+                                        </Card>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <Card sx={{ padding: 2, backgroundColor: '#ffe0b2' }}>
+                                            <Typography variant="h6">This Week's Appointments</Typography>
+                                            <Typography variant="body1" color="primary">{week}</Typography>
+                                        </Card>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <Card sx={{ padding: 2, backgroundColor: '#c8e6c9' }}>
+                                            <Typography variant="h6">This Month's Appointments</Typography>
+                                            <Typography variant="body1" color="primary">{month}</Typography>
+                                        </Card>
+                                    </Grid>
+                                </Grid>
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>
