@@ -148,6 +148,10 @@ function VehicleWidget({ userName }) {
                             flexDirection: 'row',
                             width: 'calc(100% - 60px)',
                             justifyContent: isCenterAligned ? 'center' : 'flex-start',
+                            '&::-webkit-scrollbar': {
+                                display: 'none',
+                            },
+                            scrollbarWidth: 'none',
                         }}
                     >
                         {vehicles.map(vehicle => {
