@@ -27,7 +27,14 @@ export default function CustomerProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [openEditDialog, setOpenEditDialog] = useState(false);
-    const [editData, setEditData] = useState({});
+    const [editData, setEditData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        profilePicture: ''
+    });
 
     useEffect(() => {
         const loadData = async () => {
@@ -35,6 +42,7 @@ export default function CustomerProfile() {
                 setLoading(true);
                 const customerData = await getUserByToken();
                 setCustomer(customerData);
+                setEditData(customerData);
             } catch (err) {
                 setError('Unable to load data. Please try again later.');
                 console.error(err);
@@ -52,7 +60,7 @@ export default function CustomerProfile() {
     };
 
     const handleCloseEditDialog = () => {
-        setEditData({});
+        setEditData({ firstName: '', lastName: '', email: '', phone: '', address: '', profilePicture: '' }); // Reset editData
         setOpenEditDialog(false);
     };
 
@@ -86,13 +94,13 @@ export default function CustomerProfile() {
                         <Grid item xs={12} md={3} textAlign="center">
                             <Avatar
                                 alt="Customer Profile Picture"
-                                src="https://via.placeholder.com/150" // Test double profile image URL
+                                src={customer.profilePicture || "https://via.placeholder.com/150"}
                                 sx={{ width: 120, height: 120, margin: '0 auto' }}
                             />
                         </Grid>
                         <Grid item xs={12} md={8}>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-                                {customer.username}
+                                {`${customer.firstName} ${customer.lastName}`}
                             </Typography>
                             <Divider sx={{ marginY: 2 }} />
                             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
@@ -100,6 +108,9 @@ export default function CustomerProfile() {
                             </Typography>
                             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                                 <strong>Phone:</strong> {customer.phone}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                                <strong>Address:</strong> {customer.address}
                             </Typography>
                         </Grid>
                         <Grid item xs={12} md={1} textAlign="right">
@@ -117,10 +128,19 @@ export default function CustomerProfile() {
                 <DialogContent>
                     <TextField
                         fullWidth
-                        label="Name"
+                        label="First Name"
                         variant="outlined"
-                        name="username"
-                        value={editData.username || ''}
+                        name="firstName"
+                        value={editData.firstName || ''}
+                        onChange={handleInputChange}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Last Name"
+                        variant="outlined"
+                        name="lastName"
+                        value={editData.lastName || ''}
                         onChange={handleInputChange}
                         margin="normal"
                     />
@@ -139,6 +159,24 @@ export default function CustomerProfile() {
                         variant="outlined"
                         name="phone"
                         value={editData.phone || ''}
+                        onChange={handleInputChange}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Address"
+                        variant="outlined"
+                        name="address"
+                        value={editData.address || ''}
+                        onChange={handleInputChange}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Profile Picture URL"
+                        variant="outlined"
+                        name="profilePicture"
+                        value={editData.profilePicture || ''}
                         onChange={handleInputChange}
                         margin="normal"
                     />

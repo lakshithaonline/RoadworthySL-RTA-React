@@ -735,8 +735,8 @@ function InteractiveAppointmentBooking() {
 
 function ProfileCompletion() {
     const [completionPercentage, setCompletionPercentage] = useState(75);
-    const totalSteps = 5; // Total number of steps
-    const completedSteps = 3; // Number of completed steps
+    const totalSteps = 5;
+    const completedSteps = 3;
     const navigate = useNavigate();
 
     const handleButtonClick = () => {
