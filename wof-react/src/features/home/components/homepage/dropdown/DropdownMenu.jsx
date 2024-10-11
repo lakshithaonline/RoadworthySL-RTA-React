@@ -1,11 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PopupMenu } from "react-simple-widgets";
-import styles from './DropdownMenu.module.css';
-
-// Default profile picture URL (replace with your actual profile picture URL)
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import styles from './DropdownMenu.module.css';
+import { getUserByToken } from '../../../../../services/userService'; // Adjust the import based on your file structure
 
-const DropdownMenu = ({ user, onLogout }) => {
+const DropdownMenu = ({ onLogout }) => {
+    const [user, setUser] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: ''
+    });
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const fetchedUser = await getUserByToken();
+                setUser(fetchedUser);
+            } catch (err) {
+                console.error("Error fetching user data", err);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     return (
         <PopupMenu>
             <div className={styles.circleAvatar}>
@@ -13,15 +32,21 @@ const DropdownMenu = ({ user, onLogout }) => {
             </div>
             <div className={styles.cardStart}>
                 <div className={styles.cardBody}>
-                    <h5 className={styles.textCenter}>Lakshitha Geethmal</h5>
-                    <p className={styles.textCenterSmall}>lakshithageethmal@x.com</p>
+                    <h5 className={styles.textCenter}>
+                        {user.firstName} {user.lastName}
+                    </h5>
+                    <p className={styles.textCenterSmall}>{user.email}</p>
                     <hr className={styles.hr} />
                     <p className={styles.roles}>
                         ROLES
                     </p>
-                    <p className={styles.roleItem}>
-                        User
-                    </p>
+                    {user.role ? (
+                        <p className={styles.roleItem}>
+                            {user.role}
+                        </p>
+                    ) : (
+                        <p>No roles assigned</p>
+                    )}
                     <hr className={styles.hr} />
                     <div className={styles.listGroupFlush}>
                         <button className={styles.listGroupItem}>
