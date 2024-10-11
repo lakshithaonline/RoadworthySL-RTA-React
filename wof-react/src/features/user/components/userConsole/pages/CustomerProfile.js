@@ -104,13 +104,10 @@ export default function CustomerProfile() {
                             </Typography>
                             <Divider sx={{ marginY: 2 }} />
                             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                                <strong>Phone:</strong> {customer.username}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                                 <strong>Email:</strong> {customer.email}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                                <strong>Phone:</strong> {customer.phone}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                                <strong>Address:</strong> {customer.address}
                             </Typography>
                         </Grid>
                         <Grid item xs={12} md={1} textAlign="right">
@@ -150,24 +147,6 @@ export default function CustomerProfile() {
                         variant="outlined"
                         name="email"
                         value={editData.email || ''}
-                        onChange={handleInputChange}
-                        margin="normal"
-                    />
-                    <TextField
-                        fullWidth
-                        label="Phone"
-                        variant="outlined"
-                        name="phone"
-                        value={editData.phone || ''}
-                        onChange={handleInputChange}
-                        margin="normal"
-                    />
-                    <TextField
-                        fullWidth
-                        label="Address"
-                        variant="outlined"
-                        name="address"
-                        value={editData.address || ''}
                         onChange={handleInputChange}
                         margin="normal"
                     />
