@@ -103,9 +103,7 @@ export default function ExaminerDashboard() {
         const fetchInspectionsByExaminer = async () => {
             setLoading(true);
             try {
-                const response = await getWOFsByLoggedInExaminer();
-                const inspectionsData = response.wofs;
-
+                const inspectionsData = await getWOFsByLoggedInExaminer();
                 setWofExaminer(inspectionsData);
 
                 const now = new Date();
@@ -123,26 +121,32 @@ export default function ExaminerDashboard() {
 
                     const formattedDate = `${currentDay.getMonth() + 1}/${currentDay.getDate()}`;
                     dayLabels.push(formattedDate);
-
                     isTodayArray.push(currentDay.toDateString() === now.toDateString());
                 }
 
                 inspectionsData.forEach((inspection) => {
                     const inspectionDate = new Date(inspection.inspectionDate);
+                    inspectionDate.setHours(0, 0, 0, 0); // Ignore the time part for date comparison
+                    console.log('Inspection Date:', inspectionDate); // Debugging: Log the inspection date
 
                     if (inspectionDate >= startOfWeek && inspectionDate <= now) {
-                        const dayIndex = inspectionDate.getDay();
-                        days[dayIndex] += 1;
+                        const dayIndex = inspectionDate.getDay(); // Get the day index (0 for Sunday, 6 for Saturday)
+                        days[dayIndex] += 1; // Increment count for that day
                     }
                 });
 
-                setInspectionPerformanceData(days.map((count, index) => ({
-                    day: dayLabels[index],
-                    inspections: count,
-                    isToday: isTodayArray[index],
-                })));
+                console.log('Days Count:', days); // Debugging: Check the count for each day
+
+                // Update inspection performance data for the chart
+                setInspectionPerformanceData(
+                    days.map((count, index) => ({
+                        day: dayLabels[index],
+                        inspections: count,
+                        isToday: isTodayArray[index],
+                    }))
+                );
             } catch (err) {
-                console.error(err);
+                console.error('Error fetching WOF inspections:', err);
             } finally {
                 setLoading(false);
             }
@@ -150,6 +154,7 @@ export default function ExaminerDashboard() {
 
         fetchInspectionsByExaminer();
     }, []);
+
 
 
     useEffect(() => {
