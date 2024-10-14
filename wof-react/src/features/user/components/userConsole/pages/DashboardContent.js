@@ -11,7 +11,7 @@ import {
     Container, Dialog, DialogActions, DialogContent, DialogTitle,
     Divider,
     Grid,
-    IconButton, ListItem, ListItemText, TextField,
+    IconButton, LinearProgress, ListItem, ListItemText, TextField,
     Typography,
 } from '@mui/material';
 import {ArrowLeft, ArrowRight} from '@mui/icons-material';
@@ -503,7 +503,7 @@ function VehicleHealthOverviewWidget() {
                 <Typography variant="h6" gutterBottom>
                     Vehicle Issue Overview
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 350, overflowY: 'auto', '&::-webkit-scrollbar': { display: 'none' }  }}>
                     {criticalIssues.length > 0 ? (
                         criticalIssues.map((vehicle, index) => (
                             <Box key={index}>
@@ -734,10 +734,28 @@ function InteractiveAppointmentBooking() {
 }
 
 function ProfileCompletion() {
-    const [completionPercentage, setCompletionPercentage] = useState(75);
-    const totalSteps = 5;
-    const completedSteps = 3;
+    const [completionPercentage, setCompletionPercentage] = useState(0);
+    const [totalSteps, setTotalSteps] = useState(5); // Initially assume 5 steps
+    const [completedSteps, setCompletedSteps] = useState(0);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const user = await getUserByToken();
+                const requiredFields = ['username', 'email', 'firstName', 'lastName', 'profilePicture'];
+                const filledFields = requiredFields.filter(field => user[field]);
+
+                setTotalSteps(requiredFields.length);
+                setCompletedSteps(filledFields.length);
+                setCompletionPercentage((filledFields.length / requiredFields.length) * 100);
+            } catch (error) {
+                console.error('Error fetching user data:', error.message);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handleButtonClick = () => {
         navigate('/dashboard/customers');
@@ -747,58 +765,60 @@ function ProfileCompletion() {
         <Card
             sx={{
                 padding: 2,
-                mb: 3,
-                boxShadow: 4,
-                borderRadius: 3,
-                height: 320,
-                transition: 'transform 0.2s ease-in-out',
-                '&:hover': {
-                    transform: 'scale(1.02)',
-                },
+                mb: 2,
+                boxShadow: 3,
+                borderRadius: 2,
+                height: '200px',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
             }}
         >
-            <CardContent>
-                <Typography variant="h6" gutterBottom>
+            <CardContent sx={{ paddingBottom: '8px' }}>
+                <Typography variant="subtitle1" gutterBottom>
                     Profile Completion
                 </Typography>
-                <Box mb={2}>
-                    <Typography variant="body2" color="text.secondary" align="left">
-                        Steps Completed: {completedSteps}/{totalSteps}
+                <Box display="flex" justifyContent="space-between" mb={1}>
+                    <Typography variant="caption" color="text.secondary">
+                        Completed: {completedSteps}/{totalSteps}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        {`${Math.round(completionPercentage)}%`}
                     </Typography>
                 </Box>
-                <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
-                    <Box position="relative" display="inline-flex">
-                        <CircularProgress
-                            variant="determinate"
-                            value={completionPercentage}
-                            size={100}
-                            thickness={4}
-                            sx={{
-                                color: completionPercentage === 100 ? 'success.main' : 'info.main',
-                            }}
-                        />
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                            }}
-                        >
-                            <Typography variant="caption" component="div" color="text.secondary">
-                                {`${completionPercentage}%`}
-                            </Typography>
-                        </Box>
-                    </Box>
-                </Box>
-                <Divider sx={{mb: 2}}/>
-                <Button variant="contained" size="small" color="primary" onClick={handleButtonClick}>
-                    Complete the profile
-                </Button>
+                <LinearProgress
+                    variant="determinate"
+                    value={completionPercentage}
+                    sx={{
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: 'grey.200',
+                        '& .MuiLinearProgress-bar': {
+                            backgroundColor: completionPercentage === 100 ? 'success.main' : 'info.main',
+                        },
+                    }}
+                />
             </CardContent>
+            <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={handleButtonClick}
+                sx={{
+                    alignSelf: 'center',
+                    width: '80%',
+                    mt: 1,
+                    mb: 1,
+                    textTransform: 'none',
+                }}
+            >
+                Complete Profile
+            </Button>
         </Card>
     );
 }
+
 
 // Main Dashboard Layout
 export default function DashboardContent() {
@@ -841,7 +861,7 @@ export default function DashboardContent() {
                 </Grid>
                 <Grid item xs={12} md={6} lg={4}>
                     <AppointmentOverviewWidget/>
-                    <VehicleHealthOverviewWidget/>
+                    <ProfileCompletion/>
                 </Grid>
                 <Grid item xs={12} md={6} lg={4}>
                     <RecentIssueReportsWidget/>
@@ -849,7 +869,7 @@ export default function DashboardContent() {
                 </Grid>
                 <Grid item xs={12} md={12} lg={4}>
                     <InteractiveAppointmentBooking/>
-                    <ProfileCompletion/>
+                    <VehicleHealthOverviewWidget/>
                 </Grid>
             </Grid>
         </Container>
