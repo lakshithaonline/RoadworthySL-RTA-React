@@ -59,13 +59,17 @@ export default function VehicleTests() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isManualEvOpen, setIsManualEvOpen] = useState(false);
     const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
     const fetchScheduledInspections = async () => {
         try {
             const appointments = await getExaminerAppointments();
-            const sortedAppointments = appointments.sort((a, b) =>
+            const filteredAppointments = appointments.filter(appointment => !appointment.completed);
+
+            const sortedAppointments = filteredAppointments.sort((a, b) =>
                 new Date(a.date) - new Date(b.date) || a.time.localeCompare(b.time)
             );
+
             setScheduledInspections(sortedAppointments);
         } catch (error) {
             console.error("Error fetching scheduled inspections:", error);
@@ -163,8 +167,9 @@ export default function VehicleTests() {
         setSnackbarOpen(false);
     };
 
-    const handleOpenPopup = (vehicleId) => {
+    const handleOpenPopup = (vehicleId, appointmentId) => {
         setSelectedVehicleId(vehicleId);
+        setSelectedAppointmentId(appointmentId);
         setIsPopupOpen(true);
     };
 
@@ -354,12 +359,17 @@ export default function VehicleTests() {
                                             </>
                                         }
                                     />
-                                    <Button variant="contained" onClick={() => handleOpenPopup(inspection.vehicleId)}>Start
-                                        Inspection</Button>
+                                    <Button variant="contained" onClick={() => {
+                                        console.log("Shared vehicleId:", inspection.vehicleId, "Shared _id:", inspection._id);
+                                        handleOpenPopup(inspection.vehicleId, inspection._id);
+                                    }}>
+                                        Start Inspection
+                                    </Button>
                                     <ScheduledEvaluation
                                         open={isPopupOpen}
                                         handleClose={handleClosePopup} // Pass the function to close the popup
                                         vehicleId={selectedVehicleId}
+                                        _id={selectedAppointmentId}
                                     />
                                 </ListItem>
                             ))}

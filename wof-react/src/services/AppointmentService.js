@@ -19,6 +19,12 @@ export const approveAppointment = async (appointmentId) => {
     return response.data;
 };
 
+export const completeAppointment = async (_Id) => {
+    const headers = { Authorization: `Bearer ${ExaminerToken()}` };
+    const response = await axios.patch(`${API_URL}/examiner/complete-appointment/${_Id}`, {}, { headers });
+    return response.data;
+};
+
 
 // New API Service to get appointments for an examiner
 export const getExaminerAppointments = async () => {

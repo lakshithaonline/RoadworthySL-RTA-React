@@ -19,9 +19,10 @@ import {
     submitRatings
 } from "../../../../../../../services/examinerService";
 import {createWOF} from "../../../../../../../services/wofService";
+import {completeAppointment} from "../../../../../../../services/AppointmentService";
 
 
-export default function ScheduledEvaluation({open, handleClose, vehicleId}) {
+export default function ScheduledEvaluation({open, handleClose, vehicleId, _id}) {
     const [ratings, setRatings] = useState({
         tyres: 5,
         brakes: 5,
@@ -44,6 +45,7 @@ export default function ScheduledEvaluation({open, handleClose, vehicleId}) {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [submitted, setSubmitted] = useState(false);
+    const [completeButtonEnabled, setCompleteButtonEnabled] = useState(false);
     const [examinerDetails, setExaminerDetails] = useState(null);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
 
@@ -144,6 +146,7 @@ export default function ScheduledEvaluation({open, handleClose, vehicleId}) {
             setSnackbarMessage('Ratings submitted successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            setCompleteButtonEnabled(true);
         } catch (error) {
             // Handle errors
             if (error.response) {
@@ -162,6 +165,32 @@ export default function ScheduledEvaluation({open, handleClose, vehicleId}) {
             setSnackbarOpen(true);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCompleteJob = async (_id) => {
+        try {
+            if (!results) {
+                setSnackbarMessage('Please complete the ratings submission first.');
+                setSnackbarSeverity('error');
+                setSnackbarOpen(true);
+                return;
+            }
+            if (!_id) {
+                setSnackbarMessage('Appointment ID is required to complete the job.');
+                setSnackbarSeverity('error');
+                setSnackbarOpen(true);
+                return;
+            }
+            await completeAppointment(_id, { completed: true });
+
+            setSnackbarMessage('Job completed successfully!');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+        } catch (error) {
+            setSnackbarMessage('An error occurred while completing the job.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
         }
     };
 
@@ -492,6 +521,14 @@ export default function ScheduledEvaluation({open, handleClose, vehicleId}) {
                 </Container>
             </DialogContent>
             <DialogActions>
+                <Button
+                    onClick={() => handleCompleteJob(_id)}
+                    color="success"
+                    variant="contained"
+                    disabled={!completeButtonEnabled} // Button enabled only after results submission
+                >
+                    Complete Job
+                </Button>
                 <Button onClick={Reset} variant="outlined">
                     Close
                 </Button>
