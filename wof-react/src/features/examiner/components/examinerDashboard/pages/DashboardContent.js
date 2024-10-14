@@ -1,21 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-    Container,
-    Grid,
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    Button,
-    Box,
+    CircularProgress,
+    Container,
+    Divider,
+    Grid,
     List,
     ListItem,
-    ListItemText, CircularProgress, Alert, Divider,
+    ListItemText,
+    Typography,
 } from '@mui/material';
-import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
-    getAllVehiclesWithOwners,
-    getExaminerDetails
-} from "../../../../../services/examinerService";
+    CartesianGrid,
+    Cell,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
+import {getAllVehiclesWithOwners, getExaminerDetails} from "../../../../../services/examinerService";
 import {useNavigate} from "react-router-dom";
 import {getAllWOFs, getWOFsByLoggedInExaminer} from "../../../../../services/wofService";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -59,6 +69,10 @@ export default function ExaminerDashboard() {
     }, []);
 
     const groupAppointments = (appointments) => {
+        if (!Array.isArray(appointments)) {
+            console.error("Expected appointments to be an array but received:", appointments);
+            return {today: 0, week: 0, month: 0}; // Return default values
+        }
         const grouped = {
             today: 0,
             week: 0,
@@ -83,7 +97,7 @@ export default function ExaminerDashboard() {
         return grouped;
     };
 
-    const { today, week, month } = groupAppointments(appointmentsData);
+    const {today, week, month} = groupAppointments(appointmentsData);
 
     useEffect(() => {
         const fetchInspectionsByExaminer = async () => {
@@ -128,7 +142,6 @@ export default function ExaminerDashboard() {
                     isToday: isTodayArray[index],
                 })));
             } catch (err) {
-                setError('Unable to fetch WOF records. Please try again later.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -137,7 +150,6 @@ export default function ExaminerDashboard() {
 
         fetchInspectionsByExaminer();
     }, []);
-
 
 
     useEffect(() => {
@@ -170,9 +182,9 @@ export default function ExaminerDashboard() {
                 });
 
                 setInspectionStatsData([
-                    { name: 'Pass', value: passCount },
-                    { name: 'Failed', value: failCount },
-                    { name: 'Pass with Medium Concerns', value: passWithMediumConcernsCount }
+                    {name: 'Pass', value: passCount},
+                    {name: 'Failed', value: failCount},
+                    {name: 'Pass with Medium Concerns', value: passWithMediumConcernsCount}
                 ]);
             } catch (error) {
                 console.error('Error fetching WOF reports:', error);
@@ -236,7 +248,6 @@ export default function ExaminerDashboard() {
         : [];
 
 
-
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -262,8 +273,8 @@ export default function ExaminerDashboard() {
         navigate('/dashboard/examiner/vehicle-test');
     };
 
-    if (loading) return <CircularProgress />;
-    if (error) return <Alert severity="error">{error}</Alert>;
+    if (loading) return <CircularProgress/>;
+    // if (error) return <Alert severity="error">{error}</Alert>;
 
     return (
         <Container
@@ -275,7 +286,7 @@ export default function ExaminerDashboard() {
                 mb: 4,
             }}
         >
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }} gutterBottom>
+            <Typography variant="h6" sx={{fontWeight: 'bold'}} gutterBottom>
                 {`${getTimeOfDay()} ${userName}`}
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
@@ -284,7 +295,7 @@ export default function ExaminerDashboard() {
             <Grid container spacing={2}>
                 {/* Row 1 */}
                 <Grid item xs={12} lg={4}>
-                    <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
+                    <Card sx={{boxShadow: 4, borderRadius: 3, height: '100%'}}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>
                                 Daily Schedule Overview
@@ -314,7 +325,7 @@ export default function ExaminerDashboard() {
                                     upcomingSlots
                                         .sort((a, b) => new Date(a.date) - new Date(b.date))
                                         .map((item, index) => (
-                                            <ListItem key={index} sx={{ padding: 0 }}>
+                                            <ListItem key={index} sx={{padding: 0}}>
                                                 <Card
                                                     sx={{
                                                         backgroundColor: '#f5f5f5',
@@ -336,7 +347,7 @@ export default function ExaminerDashboard() {
                                         ))
                                 ) : (
                                     <ListItem>
-                                        <ListItemText primary="No appointments for today." />
+                                        <ListItemText primary="No appointments for today."/>
                                     </ListItem>
                                 )}
                             </List>
@@ -351,9 +362,9 @@ export default function ExaminerDashboard() {
 
                 {/* Row 2: Vehicle Registration Summary and Predictive Insights */}
                 <Grid item xs={12} lg={4}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
+                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, height: '100%'}}>
                         {/* Vehicle Registration Summary */}
-                        <Card sx={{ boxShadow: 4, borderRadius: 3, flex: 1 }}>
+                        <Card sx={{boxShadow: 4, borderRadius: 3, flex: 1}}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
                                     Vehicle Registration Summary
@@ -389,7 +400,8 @@ export default function ExaminerDashboard() {
                                                         {vehicle.make} {vehicle.model}
                                                     </Typography>
                                                     <Typography variant="body2" color="text.secondary">
-                                                        Registration: {vehicle.registrationNumber} | Owner ID: {vehicle.owner.username}
+                                                        Registration: {vehicle.registrationNumber} | Owner
+                                                        ID: {vehicle.owner.username}
                                                     </Typography>
                                                 </Box>
                                             ))}
@@ -400,7 +412,8 @@ export default function ExaminerDashboard() {
                                     </Typography>
                                 )}
 
-                                <Button variant="contained" size="small" fullWidth sx={{ mt: 2 }} onClick={handleRegisterNewVehicle}>
+                                <Button variant="contained" size="small" fullWidth sx={{mt: 2}}
+                                        onClick={handleRegisterNewVehicle}>
                                     Register New Vehicle
                                 </Button>
                             </CardContent>
@@ -411,7 +424,7 @@ export default function ExaminerDashboard() {
 
                 {/* Row 3 */}
                 <Grid item xs={12} lg={4}>
-                    <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
+                    <Card sx={{boxShadow: 4, borderRadius: 3, height: '100%'}}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>
                                 Inspection Statistics & Trends
@@ -438,28 +451,31 @@ export default function ExaminerDashboard() {
                                             />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <Tooltip/>
                                 </PieChart>
                             </ResponsiveContainer>
                             <Box>
-                                <Divider sx={{ mb: 2 }} /> {/* Top Divider */}
+                                <Divider sx={{mb: 2}}/> {/* Top Divider */}
 
-                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                <Typography variant="h6" sx={{fontWeight: 'bold', mb: 1}}>
                                     Inspection Statistics
                                 </Typography>
 
-                                <Typography variant="body2" sx={{ mb: 1 }}>
-                                    <CheckCircleIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
-                                    Pass: {inspectionStatsData[0]?.value} <br />
+                                <Typography variant="body2" sx={{mb: 1}}>
+                                    <CheckCircleIcon
+                                        sx={{color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5}}/>
+                                    Pass: {inspectionStatsData[0]?.value} <br/>
 
-                                    <CancelIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
-                                    Failed: {inspectionStatsData[1]?.value} <br />
+                                    <CancelIcon
+                                        sx={{color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5}}/>
+                                    Failed: {inspectionStatsData[1]?.value} <br/>
 
-                                    <WarningAmberIcon sx={{ color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                                    <WarningAmberIcon
+                                        sx={{color: 'black', fontSize: '1rem', verticalAlign: 'middle', mr: 0.5}}/>
                                     Pass with Medium Concerns: {inspectionStatsData[2]?.value}
                                 </Typography>
 
-                                <Divider sx={{ mt: 2 }} /> {/* Bottom Divider */}
+                                <Divider sx={{mt: 2}}/> {/* Bottom Divider */}
                             </Box>
 
                         </CardContent>
@@ -469,7 +485,7 @@ export default function ExaminerDashboard() {
 
                 {/* Row 4 */}
                 <Grid item xs={12} lg={6}>
-                    <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
+                    <Card sx={{boxShadow: 4, borderRadius: 3, height: '100%'}}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Approved Appointments Management</Typography>
                             {loading ? (
@@ -477,19 +493,19 @@ export default function ExaminerDashboard() {
                             ) : (
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={4}>
-                                        <Card sx={{ padding: 2, backgroundColor: '#e3f2fd' }}>
+                                        <Card sx={{padding: 2, backgroundColor: '#e3f2fd'}}>
                                             <Typography variant="h6">Today's Appointments</Typography>
                                             <Typography variant="body1" color="primary">{today}</Typography>
                                         </Card>
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
-                                        <Card sx={{ padding: 2, backgroundColor: '#ffe0b2' }}>
+                                        <Card sx={{padding: 2, backgroundColor: '#ffe0b2'}}>
                                             <Typography variant="h6">This Week's Appointments</Typography>
                                             <Typography variant="body1" color="primary">{week}</Typography>
                                         </Card>
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
-                                        <Card sx={{ padding: 2, backgroundColor: '#c8e6c9' }}>
+                                        <Card sx={{padding: 2, backgroundColor: '#c8e6c9'}}>
                                             <Typography variant="h6">This Month's Appointments</Typography>
                                             <Typography variant="body1" color="primary">{month}</Typography>
                                         </Card>
@@ -501,30 +517,34 @@ export default function ExaminerDashboard() {
                 </Grid>
 
                 <Grid item xs={12} lg={6}>
-                    <Card sx={{ boxShadow: 4, borderRadius: 3, height: '100%' }}>
+                    <Card sx={{boxShadow: 4, borderRadius: 3, height: '100%'}}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Examiner Performance Metrics</Typography>
                             <ResponsiveContainer width="100%" height={200}>
                                 <LineChart
                                     data={inspectionPerformanceData}
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    margin={{top: 5, right: 30, left: 20, bottom: 5}}
                                 >
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="day" />
-                                    <YAxis />
-                                    <Tooltip content={({ active, payload }) => {
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="day"/>
+                                    <YAxis/>
+                                    <Tooltip content={({active, payload}) => {
                                         if (active && payload && payload.length) {
-                                            const { day, inspections, isToday } = payload[0].payload;
+                                            const {day, inspections, isToday} = payload[0].payload;
                                             return (
-                                                <div className="custom-tooltip" style={{ padding: '10px', background: '#fff', border: '1px solid #ccc' }}>
+                                                <div className="custom-tooltip" style={{
+                                                    padding: '10px',
+                                                    background: '#fff',
+                                                    border: '1px solid #ccc'
+                                                }}>
                                                     <p>{day} {isToday ? "(Today)" : ""}</p>
                                                     <p>Inspections: {inspections}</p>
                                                 </div>
                                             );
                                         }
                                         return null;
-                                    }} />
-                                    <Line type="monotone" dataKey="inspections" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                    }}/>
+                                    <Line type="monotone" dataKey="inspections" stroke="#8884d8" activeDot={{r: 8}}/>
                                 </LineChart>
                             </ResponsiveContainer>
                         </CardContent>

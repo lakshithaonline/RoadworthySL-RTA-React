@@ -3,53 +3,50 @@ import {
     Alert,
     Box,
     Button,
-    CircularProgress,
-    Container,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
     Grid,
+    IconButton,
+    LinearProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Menu,
+    MenuItem,
     Paper,
     Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
     TextField,
     Typography
 } from '@mui/material';
-import {
-    getAllVehiclesWithOwners,
-    getExaminerDetails,
-    registerVehicleByExaminer,
-    submitRatings
-} from "../../../../../services/examinerService";
-import {Autocomplete} from "@mui/lab";
-import {createWOF} from "../../../../../services/wofService";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {getWOFsByLoggedInExaminer} from "../../../../../services/wofService";
+import {getExaminerAppointments} from "../../../../../services/AppointmentService";
+import {registerVehicleByExaminer} from "../../../../../services/examinerService";
+import ManualEvaluation from "./dashboardParts/components/ManualEvaluation";
+import ScheduledEvaluation from "./dashboardParts/components/ScheduledEvaluation";
 
 export default function VehicleTests() {
-    const [selectedVehicle, setSelectedVehicle] = useState(null);
-    const [ratings, setRatings] = useState({
-        tyres: 5,
-        brakes: 5,
-        suspension: 5,
-        bodyAndChassis: 5,
-        lights: 5,
-        glazing: 5,
-        wipers: 5,
-        doors: 5,
-        seatBelts: 5,
-        airbags: 5,
-        speedometer: 5,
-        exhaustSystem: 5,
-        fuelSystem: 5,
-    });
-    const [results, setResults] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [vehicles, setVehicles] = useState([]);
-    const [errors, setErrors] = useState({});
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [selectedSlotId, setSelectedSlotId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [slotsPerPage] = useState(5);
+    const [filteredSlots, setFilteredSlots] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedInspection, setSelectedInspection] = useState(null);
+    const [scheduledInspections, setScheduledInspections] = useState([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [submitted, setSubmitted] = useState(false);
-    const [examinerDetails, setExaminerDetails] = useState(null);
+    const [openAddVehicleModal, setOpenAddVehicleModal] = useState(false);
     const [newVehicle, setNewVehicle] = useState({
         registrationNumber: '',
         make: '',
@@ -59,217 +56,75 @@ export default function VehicleTests() {
         reg: '',
         mileage: ''
     });
-    const [openAddVehicleModal, setOpenAddVehicleModal] = useState(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [isManualEvOpen, setIsManualEvOpen] = useState(false);
+    const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
-
-    //TODO: add select inspection period: for 3month, 6 month 12 months: this will decide the inspection report validation and cost for WOF
-    useEffect(() => {
-        const storedRatings = JSON.parse(localStorage.getItem('vehicleRatings'));
-        if (storedRatings) {
-            setRatings(storedRatings);
+    const fetchScheduledInspections = async () => {
+        try {
+            const appointments = await getExaminerAppointments();
+            const sortedAppointments = appointments.sort((a, b) =>
+                new Date(a.date) - new Date(b.date) || a.time.localeCompare(b.time)
+            );
+            setScheduledInspections(sortedAppointments);
+        } catch (error) {
+            console.error("Error fetching scheduled inspections:", error);
         }
+    };
 
-        const fetchVehicles = async () => {
-            try {
-                const vehiclesData = await getAllVehiclesWithOwners();
-                setVehicles(vehiclesData);
-            } catch (error) {
-                console.error('Error fetching vehicles:', error);
-            }
-        };
-
-        const fetchExaminerDetails = async () => {
-            try {
-                const details = await getExaminerDetails();
-                setExaminerDetails(details);
-            } catch (error) {
-                console.error('Error fetching examiner details:', error);
-            }
-        };
-
-        fetchVehicles();
-        fetchExaminerDetails();
+    useEffect(() => {
+        fetchScheduledInspections();
     }, []);
 
-    const handleVehicleChange = (event, value) => {
-        setSelectedVehicle(value);
-    };
-
-    const parameters = [
-        'tyres', 'brakes', 'suspension', 'bodyAndChassis', 'lights', 'glazing',
-        'wipers', 'doors', 'seatBelts', 'airbags', 'speedometer', 'exhaustSystem', 'fuelSystem'
-    ];
-
-    const handleRatingChange = (param, value) => {
-        const numberValue = Number(value);
-        if (numberValue >= 1 && numberValue <= 10) {
-            const newRatings = {
-                ...ratings,
-                [param]: numberValue
-            };
-            setRatings(newRatings);
-            setErrors((prevErrors) => ({
-                ...prevErrors,
-                [param]: ''
-            }));
-            localStorage.setItem('vehicleRatings', JSON.stringify(newRatings));
-        } else {
-            setErrors((prevErrors) => ({
-                ...prevErrors,
-                [param]: 'Value must be between 1 and 10'
-            }));
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!selectedVehicle) {
-            setSnackbarMessage('Please select a vehicle before submitting.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            return;
-        }
-        setLoading(true);
+    const fetchWOFRecords = async () => {
         try {
-            // Pre-processing
-            const formattedRatings = {
-                "Tyres": ratings.tyres,
-                "Brakes": ratings.brakes,
-                "Suspension": ratings.suspension,
-                "Body and Chassis": ratings.bodyAndChassis,
-                "Lights": ratings.lights,
-                "Glazing": ratings.glazing,
-                "Wipers": ratings.wipers,
-                "Doors": ratings.doors,
-                "Seat Belts": ratings.seatBelts,
-                "Airbags": ratings.airbags,
-                "Speedometer": ratings.speedometer,
-                "Exhaust System": ratings.exhaustSystem,
-                "Fuel System": ratings.fuelSystem,
-            };
-
-            const data = await submitRatings(formattedRatings);
-
-            // Post-processing
-            setResults(data);
-            setSubmitted(true);
-            setSnackbarMessage('Ratings submitted successfully!');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
+            const wofs = await getWOFsByLoggedInExaminer();
+            setFilteredSlots(wofs);
         } catch (error) {
-            // Handle errors
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-                setSnackbarMessage(error.response.data.message || 'An error occurred');
-                setSnackbarSeverity('error');
-            } else if (error.request) {
-                console.error('Error request:', error.request);
-                setSnackbarMessage('No response received from server');
-                setSnackbarSeverity('error');
-            } else {
-                console.error('Error message:', error.message);
-                setSnackbarMessage('An unexpected error occurred');
-                setSnackbarSeverity('error');
-            }
-            setSnackbarOpen(true);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching WOF records:", error);
         }
     };
 
-    const handleSave = async () => {
-        if (!selectedVehicle) {
-            setSnackbarMessage('Please select a vehicle before saving.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            return;
+    useEffect(() => {
+        fetchWOFRecords();
+    }, []);
+
+    const handleActionClick = (event, slotId) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedSlotId(slotId);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+        setSelectedSlotId(null);
+    };
+
+    const handleDialogClose = () => {
+        setOpenDialog(false);
+        setSelectedInspection(null);
+    };
+
+    const handleViewClick = (slot) => {
+        setSelectedInspection(slot);
+        setOpenDialog(true);
+        handleClose();
+    };
+
+    // Pagination calculations
+    const indexOfLastSlot = currentPage * slotsPerPage;
+    const indexOfFirstSlot = indexOfLastSlot - slotsPerPage;
+    const currentSlots = filteredSlots.slice(indexOfFirstSlot, indexOfLastSlot);
+    const totalPages = Math.ceil(filteredSlots.length / slotsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
         }
+    };
 
-        if (!submitted) {
-            setSnackbarMessage('Please Complete the WOF test before reporting.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const inspectionDate = new Date();
-            const vehicleData = selectedVehicle ? selectedVehicle : {};
-            const ownerId = vehicleData.owner?._id;
-            const vehicleMFD = new Date(vehicleData.mfd);
-
-            const vehicleAge = inspectionDate.getFullYear() - vehicleMFD.getFullYear();
-            let nextInspectionDate = new Date(inspectionDate);
-
-            if (vehicleAge < 6) {
-                nextInspectionDate.setFullYear(inspectionDate.getFullYear() + 1);
-            } else if (vehicleAge <= 10) {
-                nextInspectionDate.setMonth(inspectionDate.getMonth() + 9);
-            } else {
-                nextInspectionDate.setMonth(inspectionDate.getMonth() + 6);
-            }
-
-            // Prepare data for WOF inspection
-            const wofData = {
-                vehicleId: vehicleData._id,
-                ownerId: ownerId,
-                ratings: {
-                    "Tyres": ratings.tyres,
-                    "Brakes": ratings.brakes,
-                    "Suspension": ratings.suspension,
-                    "Body and Chassis": ratings.bodyAndChassis,
-                    "Lights": ratings.lights,
-                    "Glazing": ratings.glazing,
-                    "Wipers": ratings.wipers,
-                    "Doors": ratings.doors,
-                    "Seat Belts": ratings.seatBelts,
-                    "Airbags": ratings.airbags,
-                    "Speedometer": ratings.speedometer,
-                    "Exhaust System": ratings.exhaustSystem,
-                    "Fuel System": ratings.fuelSystem,
-                },
-                inspectionDate: inspectionDate.toISOString(),
-                nextInspectionDate: nextInspectionDate.toISOString(),
-                finalScore: results?.final_score,
-                outcome: results.outcome,
-                highCriticalConcerns: results?.high_critical_concern || [],
-                examinerId: examinerDetails?._id,
-            };
-
-            const requiredFields = [
-                'fuelSystem', 'exhaustSystem', 'speedometer', 'airbags',
-                'seatBelts', 'doors', 'wipers', 'glazing', 'lights',
-                'bodyAndChassis', 'suspension', 'brakes', 'tyres'
-            ];
-            requiredFields.forEach(field => {
-                if (!wofData.ratings[field]) {
-                    wofData.ratings[field] = 5;
-                }
-            });
-
-            const data = await createWOF(wofData);
-
-            setResults(data);
-            setSnackbarMessage('WOF inspection saved successfully!');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-        } catch (error) {
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-                setSnackbarMessage(error.response.data.message || 'An error occurred');
-                setSnackbarSeverity('error');
-            } else if (error.request) {
-                console.error('Error request:', error.request);
-                setSnackbarMessage('No response received from server');
-                setSnackbarSeverity('error');
-            } else {
-                console.error('Error message:', error.message);
-                setSnackbarMessage('An unexpected error occurred');
-                setSnackbarSeverity('error');
-            }
-            setSnackbarOpen(true);
-        } finally {
-            setLoading(false);
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -295,351 +150,381 @@ export default function VehicleTests() {
             setSnackbarMessage('Vehicle added successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
-
-            const updatedVehicles = await getAllVehiclesWithOwners();
-            setVehicles(updatedVehicles);
             handleCloseAddVehicleModal();
         } catch (error) {
             console.error('Error adding vehicle:', error);
-            setSnackbarMessage('Failed to add vehicle.');
+            setSnackbarMessage('Failed to add vehicle. Please try again.');
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
         }
-    };
-
-
-    const handleReset = () => {
-        const defaultRatings = {
-            tyres: 5,
-            brakes: 5,
-            suspension: 5,
-            bodyAndChassis: 5,
-            lights: 5,
-            glazing: 5,
-            wipers: 5,
-            doors: 5,
-            seatBelts: 5,
-            airbags: 5,
-            speedometer: 5,
-            exhaustSystem: 5,
-            fuelSystem: 5,
-        };
-        setRatings(defaultRatings);
-        localStorage.removeItem('vehicleRatings');
-        setResults(null);
-        setErrors({});
-        setSubmitted(false);
     };
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
 
+    const handleOpenPopup = (vehicleId) => {
+        setSelectedVehicleId(vehicleId);
+        setIsPopupOpen(true);
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupOpen(false);
+    };
+
+    const handleOpenManualEv = () => {
+        setIsManualEvOpen(true);
+    };
+
+    const handleCloseManualEv = () => {
+        setIsManualEvOpen(false);
+    };
+
+    const handlePrint = () => {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Inspection Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Inspection Report</h1>
+                    <h2>Inspection ID: ${selectedInspection._id}</h2>
+                    <p><strong>Final Score:</strong> ${selectedInspection.finalScore}</p>
+                    <p><strong>Outcome:</strong> ${selectedInspection.outcome === 1 ? "Passed" : "Failed"}</p>
+                    <p><strong>Inspection Date:</strong> ${new Date(selectedInspection.inspectionDate).toLocaleDateString()}</p>
+                    <p><strong>Next Inspection Date:</strong> ${new Date(selectedInspection.nextInspectionDate).toLocaleDateString()}</p>
+                    <h3>WOF Inspected Level out of 10:</h3>
+                    <p>${selectedInspection.finalScore} / 10</p>
+                    <h3>Detailed Ratings:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rating Type</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(selectedInspection.ratings).map(([key, value]) => `
+                                <tr>
+                                    <td>${key}</td>
+                                    <td>${value}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `);
+            printWindow.document.close(); // Close the document to render it
+            printWindow.print(); // Trigger the print dialog
+        }
+    };
 
     return (
-        <Container maxWidth="lg" sx={{padding: 2}}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                Vehicle Testing
-            </Typography>
-            <Grid container spacing={2} sx={{marginTop: 2}}>
-                {/* Left Side: Vehicle Selection */}
-                <Grid item xs={12} md={3}>
-                    <Paper sx={{padding: 2, display: 'flex', flexDirection: 'column'}}>
-                        <Typography variant="h6" gutterBottom component="h2"
-                                    sx={{marginBottom: 1, color: '#333', fontWeight: 'bold'}}>
-                            Vehicle Selection
+        <Box sx={{flexGrow: 1}}>
+            <Grid container spacing={2}>
+                {/* Left Side: Inspection Console and History Table */}
+                <Grid item xs={12} md={8}>
+                    <Box padding="20px">
+                        <Typography variant="h4" component="h1" gutterBottom>
+                            Inspection Console
                         </Typography>
-                        <Autocomplete
-                            id="vehicle-select"
-                            options={vehicles}
-                            getOptionLabel={(vehicle) => vehicle.registrationNumber}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Select Vehicle"
-                                    variant="outlined"
-                                />
-                            )}
-                            onChange={handleVehicleChange}
+                        <Typography variant="body1" paragraph>
+                            Here you can view and manage all approved slots. Use the search bar below to filter the
+                            appointments.
+                        </Typography>
+
+                        <Typography variant="h6" gutterBottom>
+                            Inspection History Table
+                        </Typography>
+                        <TextField
                             fullWidth
+                            placeholder="Search inspection history..."
+                            variant="outlined"
+                            sx={{marginBottom: '20px'}}
                         />
-                    </Paper>
-                    <Paper sx={{marginTop: 2, padding: 2, display: 'flex', flexDirection: 'column', borderRadius: 1}}>
-                        <Typography
-                            variant="h6"
-                            component="h2"
-                            sx={{
-                                marginBottom: 1,
-                                color: '#333',
-                                fontWeight: 'bold',
-                                borderBottom: '2px solid #ddd',
-                                paddingBottom: 1,
-                            }}
-                        >
-                            Vehicle Data
-                        </Typography>
-                        {selectedVehicle ? (
-                            <Box>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Registration Number:</strong> {selectedVehicle.registrationNumber}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Owner:</strong> {selectedVehicle.owner?.username}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Make:</strong> {selectedVehicle.make}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Model:</strong> {selectedVehicle.model}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>VIN Number:</strong> {selectedVehicle.vin}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Manufacturing
-                                        Date:</strong> {new Date(selectedVehicle.mfd).toLocaleDateString()}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Registration
-                                        Date:</strong> {new Date(selectedVehicle.reg).toLocaleDateString()}
-                                </Typography>
-                                <Typography variant="body1" sx={{marginBottom: 1}}>
-                                    <strong>Mileage:</strong> {selectedVehicle.mileage} km
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <Typography variant="body1" sx={{color: '#777'}}>
-                                Please select a vehicle before start the inspection.
-                            </Typography>
-                        )}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            sx={{marginTop: 2}}
-                            onClick={handleOpenAddVehicleModal}
-                        >
-                            Add New Vehicle
-                        </Button>
-                    </Paper>
-                    {/* Add Vehicle Modal */}
-                    <Dialog open={openAddVehicleModal} onClose={handleCloseAddVehicleModal}>
-                        <DialogTitle>Add New Vehicle</DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                margin="dense"
-                                name="registrationNumber"
-                                label="Registration Number"
-                                type="text"
-                                fullWidth
-                                value={newVehicle.registrationNumber}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="make"
-                                label="Make"
-                                type="text"
-                                fullWidth
-                                value={newVehicle.make}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="model"
-                                label="Model"
-                                type="text"
-                                fullWidth
-                                value={newVehicle.model}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="vinNumber"
-                                label="VIN Number"
-                                type="text"
-                                fullWidth
-                                value={newVehicle.vinNumber}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="mfd"
-                                label="Manufacturing Date"
-                                type="date"
-                                fullWidth
-                                value={newVehicle.mfd}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="reg"
-                                label="Registration Date"
-                                type="date"
-                                fullWidth
-                                value={newVehicle.reg}
-                                onChange={handleVehicleInputChange}
-                            />
-                            <TextField
-                                margin="dense"
-                                name="mileage"
-                                label="Mileage"
-                                type="number"
-                                fullWidth
-                                value={newVehicle.mileage}
-                                onChange={handleVehicleInputChange}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleCloseAddVehicleModal} color="primary" variant="outlined">
-                                Cancel
-                            </Button>
-                            <Button onClick={handleSaveNewVehicle} color="primary" variant="contained">
-                                Add Vehicle
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                </Grid>
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow style={{backgroundColor: 'black'}}>
+                                        <TableCell style={{color: 'white'}}>Inspection ID</TableCell>
+                                        <TableCell style={{color: 'white'}}>Inspection Date</TableCell>
+                                        <TableCell style={{color: 'white'}}>Final Score</TableCell>
+                                        <TableCell style={{color: 'white'}}>Status</TableCell>
+                                        <TableCell style={{color: 'white'}}>Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {currentSlots.map((slot) => (
+                                        <TableRow key={slot._id}>
+                                            <TableCell>{slot._id || "N/A"}</TableCell>
+                                            <TableCell>
+                                                {new Date(slot.inspectionDate).toLocaleDateString()} {/* Correctly format the date */}
+                                            </TableCell>
 
-                {/* Middle Section: Testing Environment */}
-                <Grid item xs={12} md={6}>
-                    <Paper sx={{padding: 2}}>
-                        <Typography variant="h6" gutterBottom>
-                            Testing Environment
-                        </Typography>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: 2,
-                                maxHeight: 'calc(80vh)',
-                                justifyContent: 'space-between',
-                            }}
-                        >
-                            {parameters.map((param) => (
-                                <Box
-                                    key={param}
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        p: 2,
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#f9f9f9',
-                                        flex: '1 1 auto',
-                                        maxWidth: 'calc(100% / 3 - 16px)'
-                                    }}
-                                >
-                                    <Typography variant="subtitle1" gutterBottom>
-                                        {param.replace(/([A-Z])/g, ' $1').charAt(0).toUpperCase() + param.replace(/([A-Z])/g, ' $1').slice(1).toLowerCase()}
-                                    </Typography>
-                                    <TextField
-                                        type="number"
-                                        value={ratings[param]}
-                                        onChange={(e) => handleRatingChange(param, e.target.value)}
-                                        inputProps={{min: 1, max: 10, step: 1}}
-                                        error={!!errors[param]}
-                                        helperText={errors[param]}
-                                        fullWidth
-                                    />
-                                </Box>
-                            ))}
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                {/* Right Side: Results */}
-                <Grid item xs={12} md={3} sx={{display: 'flex', flexDirection: 'column'}}>
-                    <Paper sx={{padding: 2, flexGrow: 1}}>
-                        <Typography variant="h6" gutterBottom>
-                            Results
-                        </Typography>
-                        {loading ? (
-                            <Box sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                height: '100%'
-                            }}>
-                                <CircularProgress/>
-                                <Typography variant="subtitle1" sx={{marginTop: 2}}>
-                                    Calculating Results...
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 2,
-                                    overflowY: 'auto',
-                                    maxHeight: 'calc(80vh)',
-                                }}
-                            >
-                                {results && (
-                                    <>
-                                        <Typography variant="subtitle1" gutterBottom>
-                                            Final Score: {results.final_score}
-                                        </Typography>
-                                        <Typography variant="subtitle1" gutterBottom>
-                                            Outcome: {results.outcome === 1 ? 'Pass' : 'Fail'}
-                                        </Typography>
-                                        <Typography variant="subtitle1" gutterBottom>
-                                            High Critical Concerns:
-                                        </Typography>
-                                        {results.high_critical_concern && results.high_critical_concern.length > 0 ? (
-                                            results.high_critical_concern.map((concern) => (
-                                                <Box
-                                                    key={concern.parameter}
-                                                    sx={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        p: 2,
-                                                        border: '1px solid #ddd',
-                                                        borderRadius: '4px',
-                                                        backgroundColor: '#f9f9f9'
-                                                    }}
+                                            <TableCell>{slot.finalScore || "N/A"}</TableCell>
+                                            <TableCell>{slot.outcome === 1 ? "Passed" : "Failed"}</TableCell>
+                                            <TableCell>
+                                                <IconButton onClick={(event) => handleActionClick(event, slot._id)}>
+                                                    <MoreVertIcon/>
+                                                </IconButton>
+                                                <Menu
+                                                    anchorEl={anchorEl}
+                                                    open={Boolean(anchorEl) && selectedSlotId === slot._id}
+                                                    onClose={handleClose}
                                                 >
-                                                    <Typography variant="body2">
-                                                        Parameter: {concern.parameter}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        Score: {concern.score}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        Severity: {concern.severity}
-                                                    </Typography>
-                                                </Box>
-                                            ))
-                                        ) : (
-                                            <Typography variant="body2">
-                                                No critical concerns
-                                            </Typography>
-                                        )}
-                                    </>
-                                )}
-                                <Box sx={{display: 'flex', gap: 2, marginTop: 2}}>
-                                    <Button variant="outlined" onClick={handleReset}>
-                                        Reset
-                                    </Button>
-                                    <Button variant="contained" color="primary" onClick={handleSubmit}>
-                                        TEST
-                                    </Button>
-                                    <Button variant="contained" color="primary" onClick={handleSave}>
-                                        Submit
-                                    </Button>
-                                </Box>
-                            </Box>
-                        )}
-                    </Paper>
+                                                    <MenuItem onClick={() => handleViewClick(slot)}>View</MenuItem>
+                                                    <MenuItem onClick={handleClose}>Delete</MenuItem>
+                                                </Menu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
+                            <Button
+                                variant="contained"
+                                onClick={handlePreviousPage}
+                                disabled={currentPage === 1}
+                                sx={{marginRight: '10px'}}
+                            >
+                                Previous
+                            </Button>
+                            <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
+                                Page {currentPage} of {totalPages}
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                onClick={handleNextPage}
+                                disabled={currentPage === totalPages}
+                                sx={{marginLeft: '10px'}}
+                            >
+                                Next
+                            </Button>
+                        </Box>
+                    </Box>
+                </Grid>
+
+                {/* Right Side: Buttons and Scheduled Inspections */}
+                <Grid item xs={12} md={4}>
+                    <Box padding="20px">
+                        <Button variant="contained" fullWidth sx={{marginBottom: 1}} onClick={handleOpenManualEv}>
+                            + Manual TEST
+                        </Button>
+                        <ManualEvaluation
+                            open={isManualEvOpen}
+                            handleClose={handleCloseManualEv}
+                        />
+                        <Button variant="outlined" color="primary" fullWidth onClick={handleOpenAddVehicleModal}>
+                            Add Vehicle
+                        </Button>
+
+                        <Typography sx={{marginTop: 5}} variant="h6" gutterBottom>Scheduled Inspections</Typography>
+                        <Typography variant="body2" sx={{marginBottom: 2}}>
+                            Listing based on time: nearest schedules at the top.
+                        </Typography>
+                        <List>
+                            {scheduledInspections.map((inspection) => (
+                                <ListItem key={inspection._id}>
+                                    <ListItemText
+                                        primary={inspection.registrationNumber}
+                                        secondary={
+                                            <>
+                                                <Typography component="span" variant="body2" color="textPrimary">
+                                                    Date: {new Date(inspection.date).toLocaleDateString()}
+                                                </Typography>
+                                                <br/>
+                                                <Typography component="span" variant="body2" color="textPrimary">
+                                                    Time: {new Date(`1970-01-01T${inspection.time}:00`).toLocaleTimeString([], {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                })}
+                                                </Typography>
+                                            </>
+                                        }
+                                    />
+                                    <Button variant="contained" onClick={() => handleOpenPopup(inspection.vehicleId)}>Start
+                                        Inspection</Button>
+                                    <ScheduledEvaluation
+                                        open={isPopupOpen}
+                                        handleClose={handleClosePopup} // Pass the function to close the popup
+                                        vehicleId={selectedVehicleId}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+
+
+                    </Box>
                 </Grid>
             </Grid>
-            {/* Snackbar Component */}
+            {/* Dialog for Add vehicle */}
+            <Dialog open={openAddVehicleModal} onClose={handleCloseAddVehicleModal}>
+                <DialogTitle>Add New Vehicle</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        name="registrationNumber"
+                        label="Registration Number"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.registrationNumber}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="make"
+                        label="Make"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.make}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="model"
+                        label="Model"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.model}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="vinNumber"
+                        label="VIN Number"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.vinNumber}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="mfd"
+                        label="Manufacturing Date"
+                        type="date"
+                        fullWidth
+                        value={newVehicle.mfd}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="reg"
+                        label="Registration Date"
+                        type="date"
+                        fullWidth
+                        value={newVehicle.reg}
+                        onChange={handleVehicleInputChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="mileage"
+                        label="Mileage"
+                        type="number"
+                        fullWidth
+                        value={newVehicle.mileage}
+                        onChange={handleVehicleInputChange}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseAddVehicleModal} variant="outlined">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSaveNewVehicle} variant="contained">
+                        Add Vehicle
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialog for Inspection Details */}
+            <Dialog
+                open={openDialog}
+                onClose={handleDialogClose}
+                PaperProps={{
+                    style: {maxHeight: '75vh', overflowY: 'auto'} // Set max height to 75% of viewport height
+                }}
+            >
+                <DialogTitle>Inspection Details</DialogTitle>
+                <DialogContent>
+                    {selectedInspection && (
+                        <Box>
+                            <Typography variant="h6" sx={{fontWeight: 'bold'}}>
+                                Inspection ID: {selectedInspection._id}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Final Score:</strong> {selectedInspection.finalScore}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Outcome:</strong> {selectedInspection.outcome === 1 ? "Passed" : "Failed"}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Inspection
+                                    Date:</strong> {new Date(selectedInspection.inspectionDate).toLocaleDateString()}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Next Inspection
+                                    Date:</strong> {new Date(selectedInspection.nextInspectionDate).toLocaleDateString()}
+                            </Typography>
+                            <Divider sx={{marginY: 2}}/>
+                            <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                                WOF Inspected Level out of 10:
+                            </Typography>
+                            <Box sx={{display: 'flex', alignItems: 'center', marginY: 1}}>
+                                <Box sx={{flexGrow: 1, mr: 1}}>
+                                    <LinearProgress variant="determinate" value={selectedInspection.finalScore}/>
+                                </Box>
+                                <Typography variant="body1">{`${selectedInspection.finalScore} / 10`}</Typography>
+                            </Box>
+                            <Divider sx={{marginY: 1}}/>
+                            <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                                Detailed Ratings:
+                            </Typography>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell><strong>Rating Type</strong></TableCell>
+                                        <TableCell><strong>Score</strong></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {Object.entries(selectedInspection.ratings).map(([key, value]) => (
+                                        <TableRow key={key}>
+                                            <TableCell>{key}</TableCell>
+                                            <TableCell>{value}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handlePrint} variant="contained">
+                        Print
+                    </Button>
+                    <Button onClick={handleDialogClose} variant="outlined">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar for Notifications */}
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
                 <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-        </Container>
+        </Box>
     );
 }

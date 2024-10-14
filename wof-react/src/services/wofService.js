@@ -82,7 +82,7 @@ export const getWOFsByLoggedInExaminer = async () => {
                 'Authorization': `Bearer ${ExaminerToken()}`
             }
         });
-        return response.data;
+        return response.data.wofs;
     } catch (error) {
         if (error.response) {
             throw new Error(error.response.data.message || 'Failed to fetch WOFs');

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { getAllBookedSlots, getAllUsers } from "../../../../../services/examinerService";
+import {getAllUsers} from "../../../../../services/examinerService";
 import {getExaminerAppointments} from "../../../../../services/AppointmentService";
 
 export default function Appointments() {
@@ -125,17 +125,18 @@ export default function Appointments() {
     };
 
     return (
-        <Box sx={{ flexGrow: 1, display: 'flex' }}>
+        <Box sx={{flexGrow: 1, display: 'flex'}}>
             <Grid container spacing={2}>
 
                 {/* Main Table for All Records */}
                 <Grid item xs={12} md={8}>
                     <Box padding="20px">
                         <Typography variant="h4" component="h1" gutterBottom>
-                            Appointments Overview
+                            Approved Appointments
                         </Typography>
                         <Typography variant="body1" paragraph>
-                            Here you can view and manage all booked slots. Use the search bar below to filter the appointments.
+                            Here you can view and manage all approved slots. Use the search bar below to filter the
+                            appointments.
                         </Typography>
                         <TextField
                             label="Search by Registration Number or Username"
@@ -143,18 +144,18 @@ export default function Appointments() {
                             fullWidth
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            style={{ marginBottom: '20px' }}
+                            style={{marginBottom: '20px'}}
                         />
 
-                        <TableContainer component={Paper} style={{ padding: '20px' }}>
+                        <TableContainer component={Paper} style={{padding: '20px'}}>
                             <Table>
                                 <TableHead>
-                                    <TableRow style={{ backgroundColor: 'black' }}>
-                                        <TableCell style={{ color: 'white' }}>Registration Number</TableCell>
-                                        <TableCell style={{ color: 'white' }}>Username</TableCell>
-                                        <TableCell style={{ color: 'white' }}>Date</TableCell>
-                                        <TableCell style={{ color: 'white' }}>Time</TableCell>
-                                        <TableCell style={{ color: 'white' }}>Action</TableCell>
+                                    <TableRow style={{backgroundColor: 'black'}}>
+                                        <TableCell style={{color: 'white'}}>Registration Number</TableCell>
+                                        <TableCell style={{color: 'white'}}>Username</TableCell>
+                                        <TableCell style={{color: 'white'}}>Date</TableCell>
+                                        <TableCell style={{color: 'white'}}>Time</TableCell>
+                                        <TableCell style={{color: 'white'}}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -166,7 +167,7 @@ export default function Appointments() {
                                             <TableCell>{slot.time}</TableCell>
                                             <TableCell>
                                                 <IconButton onClick={(event) => handleActionClick(event, slot._id)}>
-                                                    <MoreVertIcon />
+                                                    <MoreVertIcon/>
                                                 </IconButton>
                                                 <Menu
                                                     anchorEl={anchorEl}
@@ -185,23 +186,23 @@ export default function Appointments() {
                         </TableContainer>
 
                         {/* Pagination Controls */}
-                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                             <Button
                                 variant="contained"
                                 onClick={handlePreviousPage}
                                 disabled={currentPage === 1}
-                                sx={{ marginRight: '10px' }}
+                                sx={{marginRight: '10px'}}
                             >
                                 Previous
                             </Button>
-                            <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                                 Page {currentPage} of {totalPages}
                             </Typography>
                             <Button
                                 variant="contained"
                                 onClick={handleNextPage}
                                 disabled={currentPage === totalPages}
-                                sx={{ marginLeft: '10px' }}
+                                sx={{marginLeft: '10px'}}
                             >
                                 Next
                             </Button>
@@ -212,7 +213,7 @@ export default function Appointments() {
                 {/* Card for Upcoming Appointments (Within 24 Hours) */}
                 <Grid item xs={12} md={4}>
                     <Box padding="20px">
-                        <Typography variant="h5" component="h2" gutterBottom style={{ marginBottom: '30px' }}>
+                        <Typography variant="h5" component="h2" gutterBottom style={{marginBottom: '30px'}}>
                             Upcoming Appointments
                         </Typography>
                         {upcomingSlots.map((slot) => (
@@ -221,57 +222,67 @@ export default function Appointments() {
                                 sx={{
                                     marginBottom: '10px',
                                     maxWidth: 260,
-                                    backgroundColor: '#adadad',
-                                    color: '#fff',
+                                    backgroundColor: '#FFFFFF', // Set to white for consistency
+                                    color: '#000000', // Black text for readability
                                     borderRadius: '8px',
                                     overflow: 'hidden',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)', // Soft shadow for depth
                                 }}
                             >
-                                <CardContent sx={{ padding: '8px' }}>
-                                    <Typography variant="h6" component="div" sx={{ color: '#000000', marginBottom: '4px' }}>
+                                <CardContent sx={{padding: '16px'}}>
+                                    <Typography variant="h6" component="div"
+                                                sx={{color: '#000000', marginBottom: '4px'}}>
                                         {slot.registrationNumber}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#000000', marginBottom: '4px' }}>
+                                    <Typography variant="body2" sx={{color: '#000000', marginBottom: '4px'}}>
                                         Username: {slot.username}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#000000', marginBottom: '4px' }}>
+                                    <Typography variant="body2" sx={{color: '#000000', marginBottom: '4px'}}>
                                         Date: {new Date(slot.date).toLocaleDateString()}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#000000' }}>
+                                    <Typography variant="body2" sx={{color: '#000000'}}>
                                         Time: {slot.time}
                                     </Typography>
                                 </CardContent>
-                                <CardActions sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '8px' }}>
+                                <CardActions sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    gap: '8px',
+                                    padding: '8px'
+                                }}>
                                     <Button
                                         variant="contained"
-                                        color="primary"  // Action: Start Inspection
                                         onClick={() => handleAction('start inspection', slot._id)}
-                                        sx={{ fontSize: '0.75rem', color: '#fff', backgroundColor: '#000000' }}
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: '#FFFFFF',
+                                            backgroundColor: '#000000'
+                                        }}
                                     >
                                         Start Inspection
                                     </Button>
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
                                         <IconButton
                                             aria-label="more options"
                                             size="small"
                                             onClick={(event) => handleMenuClick(event, slot._id)}
-                                            sx={{ color: '#000000' }}
+                                            sx={{color: '#000000'}}
                                         >
-                                            <MoreVertIcon />
+                                            <MoreVertIcon/>
                                         </IconButton>
                                         <Menu
                                             anchorEl={anchorElUA}
                                             open={Boolean(anchorElUA)}
                                             onClose={() => setAnchorElUA(null)}
-                                            sx={{ mt: '40px' }}
+                                            sx={{mt: '40px'}}
                                         >
-                                            <MenuItem onClick={() => handleAction('reschedule', slot._id)}>Reschedule</MenuItem>
+                                            <MenuItem
+                                                onClick={() => handleAction('reschedule', slot._id)}>Reschedule</MenuItem>
                                             <MenuItem onClick={() => handleAction('cancel', slot._id)}>Cancel</MenuItem>
                                         </Menu>
                                     </Box>
                                 </CardActions>
-
                             </Card>
                         ))}
                     </Box>
