@@ -3,86 +3,60 @@ import { Link } from 'react-router-dom';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
-import DashboardIcon from '@mui/icons-material/SpaceDashboard';
-import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
-import PeopleIcon from '@mui/icons-material/People';
-import ReportIcon from '@mui/icons-material/Report';
-import BuildIcon from '@mui/icons-material/Build';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import CarRepairIcon from '@mui/icons-material/CarRepair';
+import BuildCircleIcon from '@mui/icons-material/BuildCircle';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ReportIcon from "@mui/icons-material/Report";
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+
+
 
 export const mainListItems = (
     <React.Fragment>
         <ListItemButton component={Link} to="/dashboard">
             <ListItemIcon>
-                <DashboardIcon/>
+                <DashboardIcon />
             </ListItemIcon>
-            <ListItemText primary="User Dashboard"/>
+            <ListItemText primary="User Dashboard" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/vehicle-test">
             <ListItemIcon>
-                <ManageHistoryIcon/>
+                <FactCheckIcon />
             </ListItemIcon>
-            <ListItemText primary="Vehicle Tests"/>
+            <ListItemText primary="Vehicle Tests" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/vehicle-management">
             <ListItemIcon>
-                <BuildIcon/>
+                <BuildCircleIcon />
             </ListItemIcon>
-            <ListItemText primary="Vehicle Management"/>
+            <ListItemText primary="Vehicle Management" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/appointments">
             <ListItemIcon>
-                <DateRangeIcon/>
+                <EventNoteIcon />
             </ListItemIcon>
-            <ListItemText primary="Appointments"/>
+            <ListItemText primary="Appointments" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/appointments-management">
             <ListItemIcon>
-                <AssignmentTurnedInIcon/>
+                <TaskAltIcon />
             </ListItemIcon>
-            <ListItemText primary="Appointments Management"/>
+            <ListItemText primary="Appointments Management" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/customers">
             <ListItemIcon>
-                <PeopleIcon/>
+                <GroupsIcon />
             </ListItemIcon>
-            <ListItemText primary="Customers"/>
+            <ListItemText primary="Customers" />
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/reports">
             <ListItemIcon>
                 <ReportIcon/>
             </ListItemIcon>
-            <ListItemText primary="Reports"/>
-        </ListItemButton>
-    </React.Fragment>
-);
-
-
-export const secondaryListItems = (
-    <React.Fragment>
-        <ListSubheader component="div" inset>
-            Saved reports
-        </ListSubheader>
-        <ListItemButton component={Link} to="/dashboard/report/current-month">
-            <ListItemIcon>
-                <AssignmentIcon/>
-            </ListItemIcon>
-            <ListItemText primary="Current month"/>
-        </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/report/last-quarter">
-            <ListItemIcon>
-                <AssignmentIcon/>
-            </ListItemIcon>
-            <ListItemText primary="Last quarter"/>
-        </ListItemButton>
-        <ListItemButton component={Link} to="/dashboard/report/year-end-summary">
-            <ListItemIcon>
-                <AssignmentIcon/>
-            </ListItemIcon>
-            <ListItemText primary="Year-end summary"/>
+            <ListItemText primary="Reports" />
         </ListItemButton>
     </React.Fragment>
 );

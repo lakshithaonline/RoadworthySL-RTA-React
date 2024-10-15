@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
     Box,
     IconButton,
-    Menu,
-    MenuItem,
     Paper,
     Table,
     TableBody,
@@ -14,11 +12,23 @@ import {
     TextField,
     Typography,
     Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    Card,
+    CardContent,
+    Grid,
+    Link as MUILink,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails, DialogActions
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HistoryIcon from '@mui/icons-material/History';
-import {getAllVehiclesWithOwners} from "../../../../../services/examinerService";
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { getAllVehiclesWithOwners } from "../../../../../services/examinerService";
+import { getAllWOFs } from '../../../../../services/wofService';
 
 export default function VehicleManagement() {
     const [vehicles, setVehicles] = useState([]);
@@ -26,6 +36,10 @@ export default function VehicleManagement() {
     const [selectedVehicleId, setSelectedVehicleId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [wofReports, setWofReports] = useState([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false); // Added this
+    const [currentVehicleWOFs, setCurrentVehicleWOFs] = useState([]);
+
     const vehiclesPerPage = 5;
 
     useEffect(() => {
@@ -41,13 +55,22 @@ export default function VehicleManagement() {
         fetchVehicles();
     }, []);
 
+    useEffect(() => {
+        const fetchWOFReports = async () => {
+            try {
+                const wofs = await getAllWOFs();
+                setWofReports(wofs.wofs);  // Assuming wofs.wofs contains the array of WOF reports
+            } catch (error) {
+                console.error('Error fetching WOF reports:', error);
+            }
+        };
+
+        fetchWOFReports();
+    }, []);
+
     const handleActionClick = (event, id) => {
         setAnchorEl(event.currentTarget);
         setSelectedVehicleId(id);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
     };
 
     const handleSearchChange = (event) => {
@@ -55,18 +78,21 @@ export default function VehicleManagement() {
         setCurrentPage(1); // Reset to first page on search
     };
 
+    const handleWOFHistoryClick = (vehicleId) => {
+        const vehicleWOFs = wofReports.filter(wof => wof.vehicle._id === vehicleId);
+        setCurrentVehicleWOFs(vehicleWOFs);
+        setIsDialogOpen(true); // Open dialog when WOF history is clicked
+    };
+
+    const handleDialogClose = () => {
+        setIsDialogOpen(false); // Close the dialog
+        setCurrentVehicleWOFs([]); // Clear current WOF reports
+    };
+
     const filteredVehicles = vehicles.filter(vehicle =>
         vehicle.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (vehicle.owner?.username || 'Unknown').toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const handleAction = (action, vehicleId) => {
-        console.log(`Action ${action} for vehicle ${vehicleId}`);
-    };
-
-    const handleWOFHistoryClick = (vehicleId) => {
-        console.log(`View WOF history for vehicle ${vehicleId}`);
-    };
 
     const indexOfLastVehicle = currentPage * vehiclesPerPage;
     const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
@@ -92,9 +118,6 @@ export default function VehicleManagement() {
                 <Typography variant="h4" component="h1" gutterBottom>
                     Vehicle Management
                 </Typography>
-                <Typography variant="body1" paragraph>
-                    Manage all registered vehicles. Use the search bar to filter the vehicles by registration number or owner.
-                </Typography>
                 <TextField
                     label="Search by Registration Number or Owner"
                     variant="outlined"
@@ -113,7 +136,6 @@ export default function VehicleManagement() {
                                 <TableCell style={{ color: 'white' }}>Make</TableCell>
                                 <TableCell style={{ color: 'white' }}>Model</TableCell>
                                 <TableCell style={{ color: 'white' }}>VIN Number</TableCell>
-                                <TableCell style={{ color: 'white' }}>Action</TableCell>
                                 <TableCell style={{ color: 'white' }}>WOF History</TableCell>
                             </TableRow>
                         </TableHead>
@@ -125,20 +147,6 @@ export default function VehicleManagement() {
                                     <TableCell>{vehicle.make}</TableCell>
                                     <TableCell>{vehicle.model}</TableCell>
                                     <TableCell>{vehicle.vinNumber}</TableCell>
-                                    <TableCell>
-                                        <IconButton onClick={(event) => handleActionClick(event, vehicle._id)}>
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                        <Menu
-                                            anchorEl={anchorEl}
-                                            open={Boolean(anchorEl) && selectedVehicleId === vehicle._id}
-                                            onClose={handleClose}
-                                        >
-                                            <MenuItem onClick={() => handleAction('view', vehicle._id)}>View</MenuItem>
-                                            <MenuItem onClick={() => handleAction('edit', vehicle._id)}>Edit</MenuItem>
-                                            <MenuItem onClick={() => handleAction('delete', vehicle._id)}>Delete</MenuItem>
-                                        </Menu>
-                                    </TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => handleWOFHistoryClick(vehicle._id)}>
                                             <HistoryIcon />
@@ -169,6 +177,93 @@ export default function VehicleManagement() {
                         Next
                     </Button>
                 </Box>
+
+                {/* WOF History Dialog */}
+                <Dialog
+                    open={isDialogOpen}
+                    onClose={handleDialogClose}
+                    fullWidth
+                    maxWidth="md"
+                    aria-labelledby="wof-history-dialog-title"
+                    sx={{ boxShadow: 'none' }}
+                >
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px' }}>
+                        WOF History
+                    </DialogTitle>
+                    <DialogContent dividers sx={{ padding: '16px 24px' }}>
+                        {currentVehicleWOFs.length > 0 ? (
+                            currentVehicleWOFs.map((wof) => (
+                                <Card key={wof._id}  sx={{ boxShadow: 'none', marginBottom: '-20px' }}>
+                                    <CardContent >
+                                        <Accordion >
+                                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                                <Typography variant="h6">
+                                                    Inspection Date: {new Date(wof.inspectionDate).toLocaleDateString()}
+                                                </Typography>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12} sm={6}>
+                                                        <Typography variant="body2">
+                                                            <strong>Mileage: </strong>{wof.vehicle.mileage}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={6}>
+                                                        <Typography variant="body2">
+                                                            <strong>Final Score: </strong>{wof.finalScore}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={6}>
+                                                        <Typography variant="body2">
+                                                            <strong>Outcome: </strong>{wof.outcome === 1 ? 'Pass' : 'Fail'}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={6}>
+                                                        <Typography variant="body2">
+                                                            <strong>Next Inspection Date: </strong>
+                                                            {wof.nextInspectionDate
+                                                                ? new Date(wof.nextInspectionDate).toLocaleDateString()
+                                                                : 'N/A - '}
+                                                            {!wof.nextInspectionDate && (
+                                                                <MUILink href="/dashboard/reports" underline="hover" color="primary">
+                                                                    contact support
+                                                                </MUILink>
+                                                            )}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <Typography variant="body2">
+                                                            <strong>High Critical Concerns: </strong>
+                                                        </Typography>
+                                                        {wof.highCriticalConcerns && wof.highCriticalConcerns.length > 0 ? (
+                                                            <ul>
+                                                                {wof.highCriticalConcerns.map((concern, idx) => (
+                                                                    <li key={idx}>
+                                                                        <Typography variant="body2">
+                                                                            Parameter: {concern.parameter}, Score: {concern.score}, Severity: {concern.severity}
+                                                                        </Typography>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <Typography variant="body2">None</Typography>
+                                                        )}
+                                                    </Grid>
+                                                </Grid>
+                                            </AccordionDetails>
+                                        </Accordion>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        ) : (
+                            <Typography variant="body1">No WOF history found for this vehicle.</Typography>
+                        )}
+                    </DialogContent>
+                    <DialogActions sx={{ padding: '16px 24px' }}>
+                        <Button variant="outlined" onClick={handleDialogClose}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+
             </Box>
         </Box>
     );

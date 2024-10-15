@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
-import {mainListItems, secondaryListItems} from './listItems';
+import {mainListItems} from './listItems';
 import Chart from './pages/dashboardParts/Chart';
 import Deposits from './pages/dashboardParts/Deposits';
 import Orders from './pages/dashboardParts/Orders';
@@ -189,8 +189,6 @@ export default function ExaminerDashboard() {
                     <Divider/>
                     <List component="nav">
                         {mainListItems}
-                        <Divider sx={{my: 1}}/>
-                        {secondaryListItems}
                     </List>
                     <Box sx={{mt: 'auto', mb: 2}}>
                         <ListItemButton onClick={() => handleLogout(navigate)}>

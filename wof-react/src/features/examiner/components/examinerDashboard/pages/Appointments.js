@@ -155,7 +155,7 @@ export default function Appointments() {
                                         <TableCell style={{color: 'white'}}>Username</TableCell>
                                         <TableCell style={{color: 'white'}}>Date</TableCell>
                                         <TableCell style={{color: 'white'}}>Time</TableCell>
-                                        <TableCell style={{color: 'white'}}>Action</TableCell>
+                                        <TableCell style={{ color: 'white', width: '15%', textAlign: 'center' }}>Status</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -165,20 +165,12 @@ export default function Appointments() {
                                             <TableCell>{slot.username}</TableCell>
                                             <TableCell>{new Date(slot.date).toLocaleDateString()}</TableCell>
                                             <TableCell>{slot.time}</TableCell>
-                                            <TableCell>
-                                                <IconButton onClick={(event) => handleActionClick(event, slot._id)}>
-                                                    <MoreVertIcon/>
-                                                </IconButton>
-                                                <Menu
-                                                    anchorEl={anchorEl}
-                                                    open={Boolean(anchorEl) && selectedSlotId === slot._id}
-                                                    onClose={handleClose}
-                                                >
-                                                    <MenuItem onClick={handleClose}>View</MenuItem>
-                                                    <MenuItem onClick={handleClose}>Edit</MenuItem>
-                                                    <MenuItem onClick={handleClose}>Delete</MenuItem>
-                                                </Menu>
+                                            <TableCell style={{width: '15%', textAlign: 'center'}}>
+                                                <TableCell style={{ color: slot.completed ? 'green' : 'red' }}>
+                                                    {slot.completed ? 'Completed' : 'Pending'}
+                                                </TableCell>
                                             </TableCell>
+
                                         </TableRow>
                                     ))}
                                 </TableBody>
