@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { adminLogin } from '../../../services/ApiService';
-import { Box, Button, TextField, Typography, CircularProgress, Snackbar  } from "@mui/material";
+import {Box, Button, TextField, Typography, CircularProgress, Snackbar, Link} from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 
 function AdminLoginPage() {
@@ -133,6 +133,47 @@ function AdminLoginPage() {
                         Login
                     </Button>
                 )}
+            </Box>
+            <Box sx={{ position: 'absolute', bottom: 20, right: 20 }}>
+                <Link
+                    href="/examiner-login"
+                    variant="body2"
+                    sx={{
+                        color: 'black',
+                        mr: 2,
+                        textDecoration: 'none',
+                        backgroundColor: '#FBC02E',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        boxShadow: 'none',
+                        transition: 'background-color 0.3s, box-shadow 0.3s',
+                        '&:hover': {
+                            backgroundColor: '#fd8f60',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+                        },
+                    }}
+                >
+                    Examiner Login
+                </Link>
+                <Link
+                    href="/user-login"
+                    variant="body2"
+                    sx={{
+                        color: 'black',
+                        textDecoration: 'none',
+                        backgroundColor: '#FBC02E',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        boxShadow: 'none',
+                        transition: 'background-color 0.3s, box-shadow 0.3s',
+                        '&:hover': {
+                            backgroundColor: '#fd8f60',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+                        },
+                    }}
+                >
+                    User Login
+                </Link>
             </Box>
             <Snackbar
                 open={open}

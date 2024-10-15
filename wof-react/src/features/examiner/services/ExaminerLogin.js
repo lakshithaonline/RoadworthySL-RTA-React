@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { examinerLogin } from '../../../services/AuthService';
-import { Box, Button, TextField, Typography, CircularProgress, Snackbar  } from "@mui/material";
+import {Box, Button, TextField, Typography, CircularProgress, Snackbar, Link} from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 
 function ExaminerLogin() {
@@ -133,6 +133,47 @@ function ExaminerLogin() {
                         Login
                     </Button>
                 )}
+            </Box>
+            <Box sx={{ position: 'absolute', bottom: 20, right: 20 }}>
+                <Link
+                    href="/user-login"
+                    variant="body2"
+                    sx={{
+                        color: 'black',
+                        mr: 2,
+                        textDecoration: 'none',
+                        backgroundColor: '#FBC02E',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        boxShadow: 'none', // Initial state
+                        transition: 'background-color 0.3s, box-shadow 0.3s', // Smooth transition
+                        '&:hover': {
+                            backgroundColor: '#fd8f60', // Darker shade on hover
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // Shadow effect on hover
+                        },
+                    }}
+                >
+                    User Login
+                </Link>
+                <Link
+                    href="/admin"
+                    variant="body2"
+                    sx={{
+                        color: 'black',
+                        textDecoration: 'none',
+                        backgroundColor: '#FBC02E',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        boxShadow: 'none', // Initial state
+                        transition: 'background-color 0.3s, box-shadow 0.3s', // Smooth transition
+                        '&:hover': {
+                            backgroundColor: '#fd8f60', // Darker shade on hover
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // Shadow effect on hover
+                        },
+                    }}
+                >
+                    Admin Login
+                </Link>
             </Box>
             <Snackbar
                 open={open}

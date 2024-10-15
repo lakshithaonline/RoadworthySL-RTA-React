@@ -77,9 +77,12 @@ export default function AppointmentsManagement() {
         setCurrentPage(1); // Reset to the first page on search
     };
 
-    const filteredAppointments = appointments.filter(slot =>
-        slot.vehicleId && vehicles.find(vehicle => vehicle._id === slot.vehicleId)?.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredAppointments = appointments
+        .filter(slot => !slot.completed)
+        .filter(slot =>
+            slot.vehicleId &&
+            vehicles.find(vehicle => vehicle._id === slot.vehicleId)?.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
     // Pagination calculations
     const indexOfLastSlot = currentPage * slotsPerPage;

@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AdminLoginPage from "../features/admin/pages/Admin-LoginPage";
+import AdminLoginPage from "../features/admin/services/Admin-LoginPage";
 import {ThemeProvider} from "@mui/material";
 import theme from "../components/common/theme/theme";
 import AdminPage from "../features/admin/pages/AdminPage";
