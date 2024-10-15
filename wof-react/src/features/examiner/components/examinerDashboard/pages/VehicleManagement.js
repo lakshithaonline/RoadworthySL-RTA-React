@@ -23,10 +23,8 @@ import {
     AccordionSummary,
     AccordionDetails, DialogActions
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { getAllVehiclesWithOwners } from "../../../../../services/examinerService";
 import { getAllWOFs } from '../../../../../services/wofService';
 
@@ -75,18 +73,18 @@ export default function VehicleManagement() {
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     };
 
     const handleWOFHistoryClick = (vehicleId) => {
         const vehicleWOFs = wofReports.filter(wof => wof.vehicle._id === vehicleId);
         setCurrentVehicleWOFs(vehicleWOFs);
-        setIsDialogOpen(true); // Open dialog when WOF history is clicked
+        setIsDialogOpen(true);
     };
 
     const handleDialogClose = () => {
-        setIsDialogOpen(false); // Close the dialog
-        setCurrentVehicleWOFs([]); // Clear current WOF reports
+        setIsDialogOpen(false);
+        setCurrentVehicleWOFs([]);
     };
 
     const filteredVehicles = vehicles.filter(vehicle =>
