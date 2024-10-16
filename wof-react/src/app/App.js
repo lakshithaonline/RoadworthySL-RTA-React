@@ -7,7 +7,6 @@ import HomePage from "../features/home/services/Home-Page";
 import RegisterPage from "../features/user/services/RegisterPage";
 import LoginPage from "../features/user/services/LoginPage";
 import ExaminerLogin from "../features/examiner/services/ExaminerLogin";
-import ExaminerRegisterPage from "../features/admin/components/ExaminerRegisterPage";
 import PrivacyPolicy from "../features/home/components/privacyPolicy/PrivacyPolicy";
 import ExaminerDashboard from "../features/examiner/components/examinerDashboard/examinerDashboard";
 import PrivateExaminerRoute from "../routes/private/PrivateExaminerRoute";
@@ -38,7 +37,6 @@ function App() {
                                 }/>
                             </>
                             <>
-                                <Route path="/examiner-reg" element={<ExaminerRegisterPage />} />
                                 <Route path="/examiner-login" element={<ExaminerLogin />} />
                                 <Route path="/dashboard/examiner/*" element={
                                     <PrivateExaminerRoute>
