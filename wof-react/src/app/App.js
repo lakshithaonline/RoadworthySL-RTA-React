@@ -3,18 +3,18 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLoginPage from "../features/admin/services/Admin-LoginPage";
 import {ThemeProvider} from "@mui/material";
 import theme from "../components/common/theme/theme";
-import AdminPage from "../features/admin/pages/AdminPage";
 import HomePage from "../features/home/services/Home-Page";
 import RegisterPage from "../features/user/services/RegisterPage";
 import LoginPage from "../features/user/services/LoginPage";
 import ExaminerLogin from "../features/examiner/services/ExaminerLogin";
 import ExaminerRegisterPage from "../features/admin/components/ExaminerRegisterPage";
 import PrivacyPolicy from "../features/home/components/privacyPolicy/PrivacyPolicy";
-import UserDashboard from "../features/user/components/userConsole/userDashboard";
 import ExaminerDashboard from "../features/examiner/components/examinerDashboard/examinerDashboard";
 import PrivateExaminerRoute from "../routes/private/PrivateExaminerRoute";
 import PrivateUserRoute from "../routes/private/PrivateUserRoute";
 import PrivateAdminRoute from "../routes/private/PrivateAdminRoute";
+import AdminDashboard from "../features/admin/components/userConsole/AdminDashboard";
+import UserDashboard from "../features/user/components/userConsole/userDashboard";
 
 
 
@@ -47,9 +47,9 @@ function App() {
                                 }/>
                             </>
                             <Route path="/admin" element={<AdminLoginPage />} />
-                            <Route path="/admin-dashboard" element={
+                            <Route path="/dashboard/admin/*" element={
                                 <PrivateAdminRoute>
-                                    <AdminPage />
+                                    <AdminDashboard />
                                 </PrivateAdminRoute>
                             }/>
                         </Routes>

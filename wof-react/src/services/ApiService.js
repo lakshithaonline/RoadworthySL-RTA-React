@@ -5,7 +5,7 @@ export const adminLogin = async (username, password) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
-            credentials: 'include' // Ensure cookies are included with requests if needed for session management
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -13,8 +13,7 @@ export const adminLogin = async (username, password) => {
         }
 
         const data = await response.json();
-        // Assuming the token is returned under a key named 'token'
-        localStorage.setItem('adminToken', data.token); // Store the token in localStorage
+        localStorage.setItem('adminToken', JSON.stringify(data));
 
         return data;
     } catch (error) {

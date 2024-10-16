@@ -7,6 +7,86 @@ const getAuthToken = () => {
     return examiner ? examiner.token : null;
 };
 
+const AdminToken = () => {
+    const admin = JSON.parse(localStorage.getItem('adminToken'));
+    return admin ? admin.token : null;
+};
+
+export const CreateExaminer = async (userData) => {
+    try {
+        const response = await axios.post(`${API_URL}/admin/register-examiner`, userData, {
+            headers: {
+                'Authorization': `Bearer ${AdminToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to register examiner');
+        } else if (error.request) {
+            throw new Error('No response received from server');
+        } else {
+            throw new Error('An unexpected error occurred');
+        }
+    }
+};
+export const getAllExaminers = async () => {
+    const token = AdminToken();
+    try {
+        const response = await axios.get(`${API_URL}/admin/get-all-examiners`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to fetch examiners');
+        }
+    }
+};
+
+export const editExaminer = async (id, updatedData) => {
+    try {
+        const response = await axios.put(`${API_URL}/admin/edit-examiner/${id}`, updatedData, {
+            headers: {
+                'Authorization': `Bearer ${AdminToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to update examiner');
+        } else if (error.request) {
+            throw new Error('No response received from server');
+        } else {
+            throw new Error('An unexpected error occurred');
+        }
+    }
+};
+
+export const deleteExaminer = async (id) => {
+    try {
+        const response = await axios.delete(`${API_URL}/admin/delete-examiner/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${AdminToken()}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to delete examiner');
+        } else if (error.request) {
+            throw new Error('No response received from server');
+        } else {
+            throw new Error('An unexpected error occurred');
+        }
+    }
+};
+
+
 export const registerVehicleByExaminer = async (vehicleData) => {
     try {
         const response = await axios.post(`${API_URL}/examiner/vehicle-register-by-examiner`, vehicleData, {

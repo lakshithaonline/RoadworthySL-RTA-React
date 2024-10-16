@@ -37,22 +37,21 @@ export const examinerLogin = async (username, password) => {
     }
 };
 
-const examinerRegister = async (userData) => {
-    const token = localStorage.getItem('adminToken'); // Retrieve the admin token from localStorage
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${token}` // Attach the token as a Bearer token in the Authorization header
-        }
-    };
-    const response = await axios.post(`${API_URL}/admin/register-examiner`, userData, config);
-    return response.data;
-};
+// const examinerRegister = async (userData) => {
+//     const token = localStorage.getItem('adminToken');
+//     const config = {
+//         headers: {
+//             'Authorization': `Bearer ${token}`
+//         }
+//     };
+//     const response = await axios.post(`${API_URL}/admin/register-examiner`, userData, config);
+//     return response.data;
+// };
 
 const AuthService = {
     userRegister,
     userLogin,
     examinerLogin,
-    examinerRegister
 };
 
 export default AuthService;

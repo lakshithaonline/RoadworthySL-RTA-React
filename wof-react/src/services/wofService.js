@@ -12,6 +12,26 @@ const userToken = () => {
     return user ? user.token : null;
 };
 
+const AdminToken = () => {
+    const admin = JSON.parse(localStorage.getItem('adminToken'));
+    return admin ? admin.token : null;
+};
+
+export const getAllWOFsADB = async () => {
+    const token = AdminToken();
+    try {
+        const response = await axios.get(`${API_URL}/admin/get-all-wofs`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data.wofs;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to fetch wofs');
+        }
+    }
+};
 
 // Fetch all WOF records for the logged-in user
 export const getAllWOFs = async () => {

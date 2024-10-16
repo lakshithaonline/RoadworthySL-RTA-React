@@ -31,7 +31,7 @@ function AdminLoginPage() {
             await adminLogin(username, password);
             setTimeout(() => {
                 setLoading(false);
-                navigate('/admin-dashboard');
+                navigate('/dashboard/admin/');
             }, 2000);
         } catch (error) {
             setLoading(false);

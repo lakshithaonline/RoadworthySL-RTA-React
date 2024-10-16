@@ -12,6 +12,27 @@ const ExaminerToken = () => {
     return examiner ? examiner.token : null;
 };
 
+const AdminToken = () => {
+    const admin = JSON.parse(localStorage.getItem('adminToken'));
+    return admin ? admin.token : null;
+};
+
+export const getAllAppointment = async () => {
+    const token = AdminToken();
+    try {
+        const response = await axios.get(`${API_URL}/admin/get-all-appointments`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || 'Failed to fetch appointments');
+        }
+    }
+};
+
 // New API Service to approve an appointment
 export const approveAppointment = async (appointmentId) => {
     const headers = { Authorization: `Bearer ${ExaminerToken()}` };

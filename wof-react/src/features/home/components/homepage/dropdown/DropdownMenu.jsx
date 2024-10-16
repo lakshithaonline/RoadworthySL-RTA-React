@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { PopupMenu } from "react-simple-widgets";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Link } from 'react-router-dom';
 import styles from './DropdownMenu.module.css';
-import { getUserByToken } from '../../../../../services/userService'; // Adjust the import based on your file structure
+import { getUserByToken } from '../../../../../services/userService';
 
 const DropdownMenu = ({ onLogout }) => {
     const [user, setUser] = useState({
         firstName: '',
         lastName: '',
         email: '',
-        role: ''
+        role: '',
+        profilePicture: ''
     });
+
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const fetchedUser = await getUserByToken();
                 setUser(fetchedUser);
+                setError(null);
             } catch (err) {
                 console.error("Error fetching user data", err);
+                setError("Failed to fetch user data. Please log in again.");
+                setUser({ firstName: '', lastName: '', email: '', role: '', profilePicture: '' }); // Clear user data
             }
         };
 
@@ -28,7 +35,11 @@ const DropdownMenu = ({ onLogout }) => {
     return (
         <PopupMenu>
             <div className={styles.circleAvatar}>
-                <AccountCircleIcon className={styles.avatarImage} />
+                {user.profilePicture ? (
+                    <img src={user.profilePicture} alt="Profile" className={styles.avatarImage} />
+                ) : (
+                    <AccountCircleIcon className={styles.avatarImage} />
+                )}
             </div>
             <div className={styles.cardStart}>
                 <div className={styles.cardBody}>
@@ -36,28 +47,25 @@ const DropdownMenu = ({ onLogout }) => {
                         {user.firstName} {user.lastName}
                     </h5>
                     <p className={styles.textCenterSmall}>{user.email}</p>
+                    {error && <p className={styles.errorText}>{error}</p>} {/* Display error message */}
                     <hr className={styles.hr} />
-                    <p className={styles.roles}>
-                        ROLES
-                    </p>
+                    <p className={styles.roles}>ROLES</p>
                     {user.role ? (
-                        <p className={styles.roleItem}>
-                            {user.role}
-                        </p>
+                        <p className={styles.roleItem}>{user.role}</p>
                     ) : (
-                        <p>No roles assigned</p>
+                        <p className={styles.roleItem}>No roles assigned</p> // Adjusted for styling
                     )}
                     <hr className={styles.hr} />
                     <div className={styles.listGroupFlush}>
-                        <button className={styles.listGroupItem}>
-                            <small>Change Requests</small>
-                        </button>
-                        <button className={styles.listGroupItem}>
-                            <small>Pending Requests</small>
-                        </button>
-                        <button className={styles.listGroupItem}>
-                            <small>Other Requests</small>
-                        </button>
+                        <Link to="/dashboard/customers" className={styles.listGroupItem}>
+                            <small>User Profile</small>
+                        </Link>
+                        <Link to="/admin" className={styles.listGroupItem}>
+                            <small>Admin Login</small>
+                        </Link>
+                        <Link to="/examiner-login" className={styles.listGroupItem}>
+                            <small>Examiner Login</small>
+                        </Link>
                     </div>
                     <hr className={styles.hr} />
                     <div className={styles.dGrid}>
