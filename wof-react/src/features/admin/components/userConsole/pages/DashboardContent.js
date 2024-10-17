@@ -43,7 +43,7 @@ export default function DashboardContent() {
                 }));
 
                 users.forEach(user => {
-                    const registrationDate = dayjs(user.registrationDate);
+                    const registrationDate = dayjs(user.createdAt);
                     if (registrationDate.month() === currentMonth) {
                         const weekIndex = Math.ceil(registrationDate.date() / 7) - 1;
                         weeksInMonth[weekIndex].users += 1;
@@ -51,7 +51,7 @@ export default function DashboardContent() {
                 });
 
                 vehicles.forEach(vehicle => {
-                    const registrationDate = dayjs(vehicle.registrationDate);
+                    const registrationDate = dayjs(vehicle.createdAt);
                     if (registrationDate.month() === currentMonth) {
                         const weekIndex = Math.ceil(registrationDate.date() / 7) - 1;
                         weeksInMonth[weekIndex].vehicles += 1;
@@ -74,17 +74,16 @@ export default function DashboardContent() {
                 const wofs = await getAllWOFsADB();
                 setWofsCount(wofs.length);
 
-                // Process the WOF data for weekly chart within the current month
-                const currentMonth = dayjs().month(); // Get the current month number (0-11)
+                const currentMonth = dayjs().month();
                 const wofsThisMonth = wofs.filter(wof => dayjs(wof.inspectionDate).month() === currentMonth);
 
                 const wofsByWeek = wofsThisMonth.reduce((acc, wof) => {
-                    const weekOfMonth = Math.ceil(dayjs(wof.inspectionDate).date() / 7); // Calculate week number within the month (1-4)
+                    const weekOfMonth = Math.ceil(dayjs(wof.inspectionDate).date() / 7);
 
-                    const passed = wof.outcome === 1; // Assuming outcome 1 means passed, 0 means failed
+                    const passed = wof.outcome === 1;
 
                     if (!acc[weekOfMonth]) {
-                        acc[weekOfMonth] = {name: `Week ${weekOfMonth}`, passed: 0, failed: 0}; // Label as Week 1, Week 2, etc.
+                        acc[weekOfMonth] = {name: `Week ${weekOfMonth}`, passed: 0, failed: 0};
                     }
 
                     if (passed) {
@@ -96,7 +95,6 @@ export default function DashboardContent() {
                     return acc;
                 }, {});
 
-                // Convert the result to an array suitable for the chart
                 setWofsData(Object.values(wofsByWeek));
 
             } catch (error) {
