@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -11,44 +11,43 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 
 
-
 export const mainListItems = (
     <React.Fragment>
         <ListItemButton component={Link} to="/dashboard/admin">
             <ListItemIcon>
-                <DashboardIcon />
+                <DashboardIcon/>
             </ListItemIcon>
-            <ListItemText primary="Admin Dashboard" />
+            <ListItemText primary="Admin Dashboard"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/admin/vehicle-management">
             <ListItemIcon>
-                <FactCheckIcon />
+                <FactCheckIcon/>
             </ListItemIcon>
-            <ListItemText primary="Vehicle Management" />
+            <ListItemText primary="Vehicle Management"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/admin/inspection-management">
             <ListItemIcon>
-                <EventNoteIcon />
+                <EventNoteIcon/>
             </ListItemIcon>
-            <ListItemText primary="Inspection Management" />
+            <ListItemText primary="Inspection Management"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/admin/appointments-management">
             <ListItemIcon>
-                <TaskAltIcon />
+                <TaskAltIcon/>
             </ListItemIcon>
-            <ListItemText primary="Appointments Management" />
+            <ListItemText primary="Appointments Management"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/admin/customers-management">
             <ListItemIcon>
-                <GroupsIcon />
+                <GroupsIcon/>
             </ListItemIcon>
-            <ListItemText primary="Customers Management" />
+            <ListItemText primary="Customers Management"/>
         </ListItemButton>
         <ListItemButton component={Link} to="/dashboard/admin/examiner-management">
             <ListItemIcon>
-                <AssignmentIcon />
+                <AssignmentIcon/>
             </ListItemIcon>
-            <ListItemText primary="Examiner Management" />
+            <ListItemText primary="Examiner Management"/>
         </ListItemButton>
     </React.Fragment>
 );

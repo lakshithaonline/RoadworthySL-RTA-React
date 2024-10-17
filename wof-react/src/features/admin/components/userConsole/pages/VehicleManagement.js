@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Box,
+    Button,
+    Container,
+    IconButton,
+    Menu,
+    MenuItem,
     Paper,
     Table,
+    TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TableBody,
-    Typography,
     TextField,
-    Container,
-    Button,
-    Box,
-    IconButton,
-    Menu,
-    MenuItem
+    Typography
 } from '@mui/material';
-import { MoreVert } from '@mui/icons-material';
-import { getAllVehiclesWithDetails } from "../../../../../services/vehicleService";
+import {MoreVert} from '@mui/icons-material';
+import {getAllVehiclesWithDetails} from "../../../../../services/vehicleService";
 
 export default function VehicleManagement() {
     const [vehicles, setVehicles] = useState([]);
@@ -85,7 +85,7 @@ export default function VehicleManagement() {
     const open = Boolean(anchorEl);
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4 }}>
+        <Container maxWidth="md" sx={{padding: 4}}>
             {/* Page Heading */}
             <Typography variant="h4" gutterBottom>
                 Vehicle Management
@@ -96,7 +96,7 @@ export default function VehicleManagement() {
                 label="Search by Vehicle Make, Model, or Registration"
                 variant="outlined"
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{marginBottom: '20px'}}
                 value={searchQuery}
                 onChange={handleSearchChange}
             />
@@ -105,13 +105,13 @@ export default function VehicleManagement() {
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow style={{ backgroundColor: 'black' }}>
-                            <TableCell style={{ color: 'white' }}>Vehicle Make</TableCell>
-                            <TableCell style={{ color: 'white' }}>Vehicle Model</TableCell>
-                            <TableCell style={{ color: 'white' }}>Registration Number</TableCell>
-                            <TableCell style={{ color: 'white' }}>Owner Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Owner Email</TableCell>
-                            <TableCell style={{ color: 'white' }}>Actions</TableCell> {/* Action Column */}
+                        <TableRow style={{backgroundColor: 'black'}}>
+                            <TableCell style={{color: 'white'}}>Vehicle Make</TableCell>
+                            <TableCell style={{color: 'white'}}>Vehicle Model</TableCell>
+                            <TableCell style={{color: 'white'}}>Registration Number</TableCell>
+                            <TableCell style={{color: 'white'}}>Owner Name</TableCell>
+                            <TableCell style={{color: 'white'}}>Owner Email</TableCell>
+                            <TableCell style={{color: 'white'}}>Actions</TableCell> {/* Action Column */}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -125,7 +125,7 @@ export default function VehicleManagement() {
                                     <TableCell>{vehicle.owner.email}</TableCell>
                                     <TableCell>
                                         <IconButton onClick={(event) => handleMenuClick(event, vehicle)}>
-                                            <MoreVert />
+                                            <MoreVert/>
                                         </IconButton>
                                     </TableCell>
                                 </TableRow>
@@ -152,23 +152,23 @@ export default function VehicleManagement() {
             </Menu>
 
             {/* Custom Pagination */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Button
                     variant="contained"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ marginRight: '10px' }}
+                    sx={{marginRight: '10px'}}
                 >
                     Previous
                 </Button>
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                     Page {currentPage} of {totalPages}
                 </Typography>
                 <Button
                     variant="contained"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ marginLeft: '10px' }}
+                    sx={{marginLeft: '10px'}}
                 >
                     Next
                 </Button>

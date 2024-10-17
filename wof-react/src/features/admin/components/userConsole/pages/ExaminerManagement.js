@@ -1,30 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    Menu,
+    MenuItem,
     Paper,
+    Select,
+    Snackbar,
     Table,
+    TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TableBody,
-    Typography,
     TextField,
-    Container,
-    Button,
-    Box,
-    IconButton,
-    Menu,
-    MenuItem,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Divider,
-    Snackbar,
-    Alert, Grid, Select, InputLabel, FormControl, Autocomplete
+    Typography
 } from '@mui/material';
-import { MoreVert } from '@mui/icons-material';
-import {CreateExaminer, getAllExaminers, deleteExaminer, editExaminer} from "../../../../../services/examinerService";
+import {MoreVert} from '@mui/icons-material';
+import {CreateExaminer, deleteExaminer, editExaminer, getAllExaminers} from "../../../../../services/examinerService";
 
 const sriLankanCities = ["Colombo", "Kandy", "Galle", "Negombo", "Jaffna", "Anuradhapura", "Trincomalee", "Batticaloa", "Nuwara Eliya", "Matara"];
 
@@ -147,7 +152,7 @@ export default function ExaminerManagement() {
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setExaminerData({
             ...examinerData,
             [name]: value
@@ -210,7 +215,7 @@ export default function ExaminerManagement() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4 }}>
+        <Container maxWidth="md" sx={{padding: 4}}>
             <Typography variant="h4" gutterBottom>
                 Examiner Management
             </Typography>
@@ -219,12 +224,12 @@ export default function ExaminerManagement() {
                 label="Search by First Name, Last Name, Username, or Email"
                 variant="outlined"
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{marginBottom: '20px'}}
                 value={searchQuery}
                 onChange={handleSearchChange}
             />
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}>
                 <Button variant="contained" onClick={handleOpenDialog}>
                     + Add Examiner
                 </Button>
@@ -233,13 +238,13 @@ export default function ExaminerManagement() {
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow style={{ backgroundColor: 'black' }}>
-                            <TableCell style={{ color: 'white' }}>First Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Last Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Username</TableCell>
-                            <TableCell style={{ color: 'white' }}>Email</TableCell>
-                            <TableCell style={{ color: 'white' }}>Branch</TableCell>
-                            <TableCell style={{ color: 'white' }}>Actions</TableCell>
+                        <TableRow style={{backgroundColor: 'black'}}>
+                            <TableCell style={{color: 'white'}}>First Name</TableCell>
+                            <TableCell style={{color: 'white'}}>Last Name</TableCell>
+                            <TableCell style={{color: 'white'}}>Username</TableCell>
+                            <TableCell style={{color: 'white'}}>Email</TableCell>
+                            <TableCell style={{color: 'white'}}>Branch</TableCell>
+                            <TableCell style={{color: 'white'}}>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -253,7 +258,7 @@ export default function ExaminerManagement() {
                                     <TableCell>{examiner.branch}</TableCell>
                                     <TableCell>
                                         <IconButton onClick={(event) => handleMenuClick(event, examiner)}>
-                                            <MoreVert />
+                                            <MoreVert/>
                                         </IconButton>
                                     </TableCell>
                                 </TableRow>
@@ -278,23 +283,23 @@ export default function ExaminerManagement() {
                 <MenuItem onClick={handleDeleteOpen}>Delete</MenuItem>
             </Menu>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Button
                     variant="contained"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ marginRight: '10px' }}
+                    sx={{marginRight: '10px'}}
                 >
                     Previous
                 </Button>
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                     Page {currentPage} of {totalPages}
                 </Typography>
                 <Button
                     variant="contained"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ marginLeft: '10px' }}
+                    sx={{marginLeft: '10px'}}
                 >
                     Next
                 </Button>
@@ -393,9 +398,9 @@ export default function ExaminerManagement() {
                                 margin="dense"
                                 options={sriLankanCities}
                                 getOptionLabel={(option) => option}
-                                onChange={(event, value) => handleInputChange({ target: { name: 'branch', value } })}
+                                onChange={(event, value) => handleInputChange({target: {name: 'branch', value}})}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Branch" fullWidth variant="outlined" />
+                                    <TextField {...params} label="Branch" fullWidth variant="outlined"/>
                                 )}
                                 fullWidth
                                 style={{marginTop: '8px'}}
@@ -415,7 +420,7 @@ export default function ExaminerManagement() {
             <Dialog open={isEditDialogOpen} onClose={handleEditClose}>
                 <DialogTitle>Edit Examiner</DialogTitle>
                 <DialogContent>
-                    <Divider sx={{ mb: 2 }} />
+                    <Divider sx={{mb: 2}}/>
                     <Grid container spacing={2}>
                         {/* Left Column */}
                         <Grid item xs={12} sm={6}>
@@ -488,17 +493,17 @@ export default function ExaminerManagement() {
                                 margin="dense"
                                 options={sriLankanCities} // Array of branch options
                                 getOptionLabel={(option) => option}
-                                onChange={(event, value) => handleInputChange({ target: { name: 'branch', value } })}
+                                onChange={(event, value) => handleInputChange({target: {name: 'branch', value}})}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Branch" fullWidth variant="outlined" />
+                                    <TextField {...params} label="Branch" fullWidth variant="outlined"/>
                                 )}
                                 value={examinerData.branch} // Pre-filled value
                                 fullWidth
-                                style={{ marginTop: '8px' }}
+                                style={{marginTop: '8px'}}
                             />
                         </Grid>
                     </Grid>
-                    <Divider sx={{ mt: 2 }} />
+                    <Divider sx={{mt: 2}}/>
                 </DialogContent>
                 <DialogActions>
                     <Button variant="outlined" onClick={handleEditClose}>Cancel</Button>
@@ -513,7 +518,7 @@ export default function ExaminerManagement() {
                     <Typography>Are you sure you want to delete this examiner?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="outlined"  onClick={handleDeleteClose}>Cancel</Button>
+                    <Button variant="outlined" onClick={handleDeleteClose}>Cancel</Button>
                     <Button variant="contained" onClick={handleDeleteExaminer}>Delete</Button>
                 </DialogActions>
             </Dialog>

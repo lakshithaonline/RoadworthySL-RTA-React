@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Box,
+    Button,
     Container,
     Paper,
     Table,
+    TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
     TextField,
-    Typography,
-    Box,
-    Button, TableBody
+    Typography
 } from '@mui/material';
 import moment from 'moment';
 import {getAllAppointment} from "../../../../../services/AppointmentService"; // If you want to format date
@@ -61,7 +62,7 @@ export default function AppointmentsManagement() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4 }}>
+        <Container maxWidth="md" sx={{padding: 4}}>
             {/* Heading */}
             <Typography variant="h4" component="h1" gutterBottom>
                 All Appointments
@@ -72,7 +73,7 @@ export default function AppointmentsManagement() {
                 label="Search by Registration Number"
                 variant="outlined"
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{marginBottom: '20px'}}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -81,12 +82,12 @@ export default function AppointmentsManagement() {
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow style={{ backgroundColor: 'black' }}>
-                            <TableCell style={{ color: 'white' }}>Registration Number</TableCell>
-                            <TableCell style={{ color: 'white' }}>Date</TableCell>
-                            <TableCell style={{ color: 'white' }}>Time</TableCell>
-                            <TableCell style={{ color: 'white' }}>Status</TableCell>
-                            <TableCell style={{ color: 'white' }}>Examiner</TableCell>
+                        <TableRow style={{backgroundColor: 'black'}}>
+                            <TableCell style={{color: 'white'}}>Registration Number</TableCell>
+                            <TableCell style={{color: 'white'}}>Date</TableCell>
+                            <TableCell style={{color: 'white'}}>Time</TableCell>
+                            <TableCell style={{color: 'white'}}>Status</TableCell>
+                            <TableCell style={{color: 'white'}}>Examiner</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -106,23 +107,23 @@ export default function AppointmentsManagement() {
             </TableContainer>
 
             {/* Pagination */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Button
                     variant="contained"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ marginRight: '10px' }}
+                    sx={{marginRight: '10px'}}
                 >
                     Previous
                 </Button>
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                     Page {currentPage} of {totalPages}
                 </Typography>
                 <Button
                     variant="contained"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ marginLeft: '10px' }}
+                    sx={{marginLeft: '10px'}}
                 >
                     Next
                 </Button>

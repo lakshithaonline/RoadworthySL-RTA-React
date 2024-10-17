@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
+    Button,
+    Collapse,
     Container,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Divider,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
     Paper,
     Table,
     TableBody,
@@ -15,17 +22,10 @@ import {
     TableHead,
     TableRow,
     TextField,
-    Typography,
-    Button,
-    IconButton,
-    ListItem,
-    ListItemText,
-    Divider,
-    Collapse,
-    List
+    Typography
 } from '@mui/material';
-import { getAllUsers } from "../../../../../services/userService";
-import { getAllVehicles } from "../../../../../services/vehicleService";
+import {getAllUsers} from "../../../../../services/userService";
+import {getAllVehicles} from "../../../../../services/vehicleService";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function CustomerManagement() {
@@ -96,7 +96,7 @@ export default function CustomerManagement() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4 }}>
+        <Container maxWidth="md" sx={{padding: 4}}>
             {/* Page Heading */}
             <Typography variant="h4" gutterBottom>
                 Customer Management
@@ -107,7 +107,7 @@ export default function CustomerManagement() {
                 label="Search by User Name or Email"
                 variant="outlined"
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{marginBottom: '20px'}}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -116,11 +116,11 @@ export default function CustomerManagement() {
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow style={{ backgroundColor: 'black' }}>
-                            <TableCell style={{ color: 'white' }}>Full Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>User Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Email</TableCell>
-                            <TableCell style={{ color: 'white' }}>Action</TableCell>
+                        <TableRow style={{backgroundColor: 'black'}}>
+                            <TableCell style={{color: 'white'}}>Full Name</TableCell>
+                            <TableCell style={{color: 'white'}}>User Name</TableCell>
+                            <TableCell style={{color: 'white'}}>Email</TableCell>
+                            <TableCell style={{color: 'white'}}>Action</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -144,23 +144,23 @@ export default function CustomerManagement() {
             </TableContainer>
 
             {/* Pagination */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Button
                     variant="contained"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ marginRight: '10px' }}
+                    sx={{marginRight: '10px'}}
                 >
                     Previous
                 </Button>
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                     Page {currentPage} of {totalPages}
                 </Typography>
                 <Button
                     variant="contained"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ marginLeft: '10px' }}
+                    sx={{marginLeft: '10px'}}
                 >
                     Next
                 </Button>
@@ -183,22 +183,26 @@ export default function CustomerManagement() {
                                             secondary={`VIN: ${vehicle.vinNumber}`}
                                         />
                                         <IconButton onClick={() => handleExpandClick(vehicle._id)}>
-                                            <ExpandMoreIcon />
+                                            <ExpandMoreIcon/>
                                         </IconButton>
                                     </ListItem>
                                     <Collapse in={expanded[vehicle._id]} timeout="auto" unmountOnExit>
-                                        <div style={{ paddingLeft: '20px' }}>
-                                            <Typography variant="body2"><strong>Mileage:</strong> {vehicle.mileage} km</Typography>
-                                            <Typography variant="body2"><strong>MFD:</strong> {new Date(vehicle.mfd).toLocaleDateString()}</Typography>
-                                            <Typography variant="body2"><strong>Registration Date:</strong> {new Date(vehicle.reg).toLocaleDateString()}</Typography>
+                                        <div style={{paddingLeft: '20px'}}>
+                                            <Typography
+                                                variant="body2"><strong>Mileage:</strong> {vehicle.mileage} km</Typography>
+                                            <Typography
+                                                variant="body2"><strong>MFD:</strong> {new Date(vehicle.mfd).toLocaleDateString()}
+                                            </Typography>
+                                            <Typography variant="body2"><strong>Registration
+                                                Date:</strong> {new Date(vehicle.reg).toLocaleDateString()}</Typography>
                                         </div>
                                     </Collapse>
-                                    <Divider />
+                                    <Divider/>
                                 </div>
                             ))
                         ) : (
                             <ListItem>
-                                <ListItemText primary="No vehicles found for this user." />
+                                <ListItemText primary="No vehicles found for this user."/>
                             </ListItem>
                         )}
                     </List>

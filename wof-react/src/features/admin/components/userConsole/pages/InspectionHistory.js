@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Grid,
     Paper,
     Table,
+    TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Typography,
     TextField,
-    Container,
-    Button,
-    Box,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TableBody,
-    Grid,
-    Divider
+    Typography
 } from '@mui/material';
-import { getAllWOFsADB } from '../../../../../services/wofService';
-import { getAllExaminers } from '../../../../../services/examinerService';
+import {getAllWOFsADB} from '../../../../../services/wofService';
+import {getAllExaminers} from '../../../../../services/examinerService';
 
 export default function WOFInspectionHistory() {
     const [wofs, setWOFs] = useState([]);
@@ -91,7 +91,7 @@ export default function WOFInspectionHistory() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ padding: 4 }}>
+        <Container maxWidth="md" sx={{padding: 4}}>
             {/* Page Heading */}
             <Typography variant="h4" gutterBottom>
                 Inspection History
@@ -102,7 +102,7 @@ export default function WOFInspectionHistory() {
                 label="Search by Vehicle Make, Model, or Registration"
                 variant="outlined"
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{marginBottom: '20px'}}
                 value={searchQuery}
                 onChange={handleSearchChange}
             />
@@ -111,14 +111,14 @@ export default function WOFInspectionHistory() {
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
-                        <TableRow style={{ backgroundColor: 'black' }}>
-                            <TableCell style={{ color: 'white' }}>Vehicle</TableCell>
-                            <TableCell style={{ color: 'white' }}>Registration Number</TableCell>
-                            <TableCell style={{ color: 'white' }}>Inspection Date</TableCell>
-                            <TableCell style={{ color: 'white' }}>Next Inspection Date</TableCell>
-                            <TableCell style={{ color: 'white' }}>Outcome</TableCell>
-                            <TableCell style={{ color: 'white' }}>Examiner Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Action</TableCell>
+                        <TableRow style={{backgroundColor: 'black'}}>
+                            <TableCell style={{color: 'white'}}>Vehicle</TableCell>
+                            <TableCell style={{color: 'white'}}>Registration Number</TableCell>
+                            <TableCell style={{color: 'white'}}>Inspection Date</TableCell>
+                            <TableCell style={{color: 'white'}}>Next Inspection Date</TableCell>
+                            <TableCell style={{color: 'white'}}>Outcome</TableCell>
+                            <TableCell style={{color: 'white'}}>Examiner Name</TableCell>
+                            <TableCell style={{color: 'white'}}>Action</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -150,23 +150,23 @@ export default function WOFInspectionHistory() {
             </TableContainer>
 
             {/* Pagination */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Button
                     variant="contained"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    sx={{ marginRight: '10px' }}
+                    sx={{marginRight: '10px'}}
                 >
                     Previous
                 </Button>
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{display: 'flex', alignItems: 'center'}}>
                     Page {currentPage} of {totalPages}
                 </Typography>
                 <Button
                     variant="contained"
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    sx={{ marginLeft: '10px' }}
+                    sx={{marginLeft: '10px'}}
                 >
                     Next
                 </Button>
@@ -208,7 +208,7 @@ export default function WOFInspectionHistory() {
                                     <Typography>{selectedWOF.vehicle.mileage} km</Typography>
                                 </Grid>
                             </Grid>
-                            <Divider sx={{ marginY: 2 }} />
+                            <Divider sx={{marginY: 2}}/>
 
                             {/* Owner Information */}
                             <Typography variant="h6" gutterBottom>
@@ -224,7 +224,7 @@ export default function WOFInspectionHistory() {
                                     <Typography>{selectedWOF.owner.email}</Typography>
                                 </Grid>
                             </Grid>
-                            <Divider sx={{ marginY: 2 }} />
+                            <Divider sx={{marginY: 2}}/>
 
                             {/* Inspection Details */}
                             <Typography variant="h6" gutterBottom>
@@ -248,7 +248,7 @@ export default function WOFInspectionHistory() {
                                     <Typography>{new Date(selectedWOF.nextInspectionDate).toLocaleDateString()}</Typography>
                                 </Grid>
                             </Grid>
-                            <Divider sx={{ marginY: 2 }} />
+                            <Divider sx={{marginY: 2}}/>
 
                             {/* High Critical Concerns */}
                             <Typography variant="h6" gutterBottom>
