@@ -64,7 +64,15 @@ export default function VehicleTests() {
     const fetchScheduledInspections = async () => {
         try {
             const appointments = await getExaminerAppointments();
-            const filteredAppointments = appointments.filter(appointment => !appointment.completed);
+            const currentDate = new Date();
+
+            const filteredAppointments = appointments.filter(appointment => {
+                const appointmentDate = new Date(appointment.date);
+                const [hours, minutes] = appointment.time.split(':').map(Number);
+                appointmentDate.setHours(hours, minutes);
+
+                return !appointment.completed && appointmentDate > currentDate;
+            });
 
             const sortedAppointments = filteredAppointments.sort((a, b) =>
                 new Date(a.date) - new Date(b.date) || a.time.localeCompare(b.time)
@@ -75,6 +83,7 @@ export default function VehicleTests() {
             console.error("Error fetching scheduled inspections:", error);
         }
     };
+
 
     useEffect(() => {
         fetchScheduledInspections();
