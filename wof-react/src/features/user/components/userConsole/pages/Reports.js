@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Typography, Button, Grid, Paper, Divider, Alert, TextField, MenuItem } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, Container, Divider, Grid, MenuItem, Paper, TextField, Typography} from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { getWOFSByToken } from "../../../../../services/wofService";
-import { format } from 'date-fns';
-import { createIssueReport } from "../../../../../services/issueReportService";
+import {getWOFSByToken} from "../../../../../services/wofService";
+import {format} from 'date-fns';
+import {createIssueReport} from "../../../../../services/issueReportService";
 
 export default function Reports() {
     const [selectedInspection, setSelectedInspection] = useState(null);
@@ -36,16 +36,16 @@ export default function Reports() {
     }, []);
 
     const formatInspectionDate = (dateString) => {
-        return format(new Date(dateString), 'dd/MM/yyyy'); // Formats the date as "DD/MM/YYYY"
+        return format(new Date(dateString), 'dd/MM/yyyy');
     };
 
     const handleInspectionChange = (event) => {
         const selectedId = event.target.value;
         const inspection = allInspections.find((ins) => ins._id === selectedId);
         if (inspection) {
-            setSelectedInspection(inspection); // Update with the selected inspection object
+            setSelectedInspection(inspection);
         } else {
-            setSelectedInspection(null); // Clear selection if no match
+            setSelectedInspection(null);
         }
     };
 
@@ -93,7 +93,7 @@ export default function Reports() {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ paddingY: 4 }}>
+        <Container maxWidth="lg" sx={{paddingY: 4}}>
             <Typography variant="h4" gutterBottom>
                 Reports & Issue Management
             </Typography>
@@ -102,11 +102,11 @@ export default function Reports() {
                 {/* Left Section: Report Console, Report Content, and Issue Reporting */}
                 <Grid item xs={12} md={8}>
                     {/* Report Console */}
-                    <Paper elevation={3} sx={{ padding: 3, marginBottom: 4 }}>
+                    <Paper elevation={3} sx={{padding: 3, marginBottom: 4}}>
                         <Typography variant="h6" gutterBottom>
                             Report Console
                         </Typography>
-                        <Divider sx={{ marginBottom: 2 }} />
+                        <Divider sx={{marginBottom: 2}}/>
 
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
@@ -136,7 +136,7 @@ export default function Reports() {
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    sx={{ height: '100%' }}
+                                    sx={{height: '100%'}}
                                     onClick={handleGenerateReport}
                                     disabled={!selectedInspection || loading}
                                 >
@@ -147,20 +147,20 @@ export default function Reports() {
                     </Paper>
 
                     {/* User Issue Reporting Section */}
-                    <Paper elevation={3} sx={{ padding: 3, marginBottom: 4 }}>
+                    <Paper elevation={3} sx={{padding: 3, marginBottom: 4}}>
                         <Typography variant="h6" gutterBottom>
                             Report an Issue
                         </Typography>
-                        <Divider sx={{ marginBottom: 2 }} />
+                        <Divider sx={{marginBottom: 2}}/>
 
                         {showSuccessMessage && (
-                            <Alert severity="success" sx={{ marginBottom: 2 }}>
+                            <Alert severity="success" sx={{marginBottom: 2}}>
                                 Your issue has been submitted successfully! Our team will review it shortly.
                             </Alert>
                         )}
 
                         {error && (
-                            <Alert severity="error" sx={{ marginBottom: 2 }}>
+                            <Alert severity="error" sx={{marginBottom: 2}}>
                                 {error}
                             </Alert>
                         )}
@@ -172,7 +172,7 @@ export default function Reports() {
                         />
                         <Button
                             variant="contained"
-                            sx={{ marginTop: 2 }}
+                            sx={{marginTop: 2}}
                             onClick={handleSubmitIssue}
                             disabled={!issueDescription.trim() || !selectedInspection}
                         >
@@ -184,14 +184,14 @@ export default function Reports() {
                 {/* Right Section: Guidance and Contact Us */}
                 <Grid item xs={12} md={4}>
                     {/* Contact Us Section */}
-                    <Paper elevation={3} sx={{ padding: 3 }}>
+                    <Paper elevation={3} sx={{padding: 3}}>
                         <Typography variant="h6" gutterBottom>
                             Contact Us
                         </Typography>
-                        <Divider sx={{ marginBottom: 2 }} />
+                        <Divider sx={{marginBottom: 2}}/>
 
                         {contactSuccess && (
-                            <Alert severity="success" sx={{ marginBottom: 2 }}>
+                            <Alert severity="success" sx={{marginBottom: 2}}>
                                 Your message has been sent successfully! We'll get back to you shortly.
                             </Alert>
                         )}
@@ -200,7 +200,7 @@ export default function Reports() {
                             label="Your Name"
                             fullWidth
                             variant="outlined"
-                            sx={{ marginBottom: 2 }}
+                            sx={{marginBottom: 2}}
                             value={contactName}
                             onChange={(e) => setContactName(e.target.value)}
                         />
@@ -208,7 +208,7 @@ export default function Reports() {
                             label="Your Email"
                             fullWidth
                             variant="outlined"
-                            sx={{ marginBottom: 2 }}
+                            sx={{marginBottom: 2}}
                             value={contactEmail}
                             onChange={(e) => setContactEmail(e.target.value)}
                         />
@@ -218,7 +218,7 @@ export default function Reports() {
                             rows={4}
                             fullWidth
                             variant="outlined"
-                            sx={{ marginBottom: 2 }}
+                            sx={{marginBottom: 2}}
                             value={contactMessage}
                             onChange={(e) => setContactMessage(e.target.value)}
                         />
